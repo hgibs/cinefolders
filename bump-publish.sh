@@ -9,3 +9,5 @@ bump2version $PART
 
 python3 setup.py bdist_wheel sdist
 twine upload -r pypi dist/*
+
+rm -rf dist/*
