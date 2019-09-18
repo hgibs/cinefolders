@@ -10,10 +10,14 @@ It tries to reversibly rename files as best it can to follow guidelines set by M
 [television](https://github.com/MediaBrowser/Wiki/wiki/TV%20naming). As well as provide a 
 link to TheMovieDB for more info. 
 
+If you want to get more info like the trailers, posters, reviews, etc.. Just see the sister project
+to this one: [cinefiles](https://github.com/hgibs/cinefiles).
+
 Changes: 
 
     /Videos  
       /Down Periscope.mp4
+      /Down Periscope_UHD_.mp4
       /Grand Budapest Hotel (2014).mkv
       /Mulan (1998)/  
         /somecrazyunreleatedname.mp4
@@ -26,8 +30,10 @@ Changes:
 
     /Videos
       /Movies
-        /Down Periscope 
-          /movie.mp4
+        /Down Periscope (1996)
+          /Down Periscope (1996) - 1080p.mp4
+          /Down Periscope (1996) - 4K.mp4
+          /tt9101.html
         /Grand Budapest Hotel (2014)
           /Grand Budapest Hotel (2014).mkv
           /tt120467.html
