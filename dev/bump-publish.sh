@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z "$*" ]; then
+    echo 'Usage: dev/bump-publish.sh [major/minor/patch]'
+    exit 1
+fi
+
+PART=$1
+
 # dev/bump-publish.sh [major/minor/patch]
 git add .
 git commit
@@ -10,12 +17,12 @@ NEWVERSION="$(bump2version --dry-run --list $PART | grep new_version | awk '{spl
 
 bump2version $PART
 
-echo -e "\n\n $OLDVERSION → $NEWVERSION" > dev/git-template.txt
+echo -e "\n\n$OLDVERSION → $NEWVERSION" > dev/git-template.txt
 
 nano dev/git-template.txt
 
 git add .
-git commit -F dev/git-template.txt
+git commit -t dev/git-template.txt
 git tag -a $NEWVERSION -F dev/git-template.txt
 git push --tags
 
