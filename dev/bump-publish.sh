@@ -8,7 +8,7 @@ PART=$1
 OLDVERSION="$(bump2version --dry-run --list $PART | grep current_version | awk '{split($0,a,"="); print "v"a[2]}' )"
 NEWVERSION="$(bump2version --dry-run --list $PART | grep new_version | awk '{split($0,a,"="); print "v"a[2]}' )"
 
-bump2version --list $PART
+bump2version $PART
 echo -e "\n\n$OLDVERSION → $NEWVERSION" > dev/git-template.txt
 
 git add .
