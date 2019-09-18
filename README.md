@@ -13,7 +13,7 @@ link to TheMovieDB for more info.
 If you want to get more info like the trailers, posters, reviews, etc.. Just see the sister project
 to this one: [cinefiles](https://github.com/hgibs/cinefiles).
 
-Changes: 
+Changes this unorganized mess:
 
     /Videos  
       /Down Periscope.mp4
@@ -44,7 +44,7 @@ Changes:
         /Pirates of the Caribbean The Curse of the Black Pearl/  
           /blackpearl.mpv
                 
-    /TV Shows
-      /Avatar the Last Airbender 
-        /Season 2
-          /Avatar the Last Airbender - S02E02 - The Cave of Two Lovers.mkv
+      /TV Shows
+        /Avatar the Last Airbender 
+          /Season 2
+            /Avatar the Last Airbender - S02E02 - The Cave of Two Lovers.mkv
