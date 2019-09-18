@@ -1,7 +1,7 @@
 name = "cinefolders"
 
 __all__ = ['organizer']
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 __url__ = 'https://github.com/hgibs/cinefolders'
 
 from .organizer import Organizer

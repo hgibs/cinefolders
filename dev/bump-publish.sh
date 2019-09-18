@@ -22,7 +22,7 @@ echo -e "\n\n$OLDVERSION → $NEWVERSION" > dev/git-template.txt
 nano dev/git-template.txt
 
 git add .
-git commit -t dev/git-template.txt
+git commit -F dev/git-template.txt
 git tag -a $NEWVERSION -F dev/git-template.txt
 git push --tags
 
