@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cinefolders",
-    version="0.0.7",
+    version="0.0.8",
     author="Holland Gibson",
     author_email="cinefiles-hgibs@googlegroups.com",
     description="A utility for organizing a media folder",
