@@ -1,12 +1,13 @@
 #! /usr/bin/env python3
 
-import logging
-import shutil
-from shutil import copy2, move
-from os import path, scandir, makedirs
-# import os
-from sys import maxsize
-from guessit import guessit
+# import logging
+# import shutil
+# from shutil import copy2, move
+from os import path, scandir, makedirs, strerror
+import errno
+# # import os
+# from sys import maxsize
+# from guessit import guessit
 import configparser
 
 # from .cinefiles import Cinefiles
@@ -18,10 +19,22 @@ import configparser
 # path = input("What folder contains the movies you want to rename/place 
 # in folders?\n("+defaultPath+"): ")
 
-class Cinefolders:
+class Organizer:
+
     def __init__(self, *args, **kwargs):
+    
+        if(running_on_windows()):
+            #TODO: add windows support
+            print(  "This code does not handle windows "
+                    +"file paths correctly, so it cannot run yet. "
+                    +"I am deeply sorry for this, please wait until "
+                    +"version 1.0 is released. You could help this "
+                    +"version get released faster by contributing to "
+                    +"this project at github.com/hgibs/cinefolders")
+            sys.exit(2) 
+        maxsize = 0
         self.configdict = { 'configfile':'',
-                            'dirpath':'',
+                            'dstpath':'',
                             'srcpath':'',
                             'copy':True,
                             'limit':maxsize,
@@ -29,19 +42,50 @@ class Cinefolders:
 
         for k in kwargs:
             if k not in self.configdict:
-                print(k+" isn't a valid key")
-        
+                raise KeyError(k+" isn't a valid config key")
+                
         if('configfile' in kwargs):
             self.configdict.update({'configfile':kwargs['configfile']})
             self.readconfigs(kwargs['configfile'])
-        elif(len(kwargs)==0):
-            defaultconfig = 'cinefiles.ini'
-            print("No arguments specified, searching for "+defaultconfig)
-            self.configdict.update({'configfile':defaultconfig})
-            self.readconfigs(defaultconfig)
+        if('dstpath' in kwargs):
+            setDest(kwargs['dstpath'])
+        if('srcpath' in kwargs):
+            setSrc(kwargs['srcpath'])
+        if('copy' in kwargs):
+            self.setCopy(kwargs['copy'])
+            
+        
+        if(len(kwargs)==0):
+            #assume interactive mode
+            print(  "No arguments, assuming interactive mode. At a minimum, call "+
+                    "setSrc('path/to/videos') and setDest('path/to/videos') (these "+
+                    "can be the same directory if you want to rename/move files in "+
+                    "place) then organizefolder()")
+            
         else:
             if('folder' in kwargs):
                 self.configdict.update({'dirpath':kwargs['folder']})
+    
+    def setDest(self,dirpath):
+        self.setPath(dirpath, 'dstpath')
+    
+    def setSrc(self,dirpath):
+        self.setPath(dirpath, 'srcpath')
+        
+    def setCopy(self, value):
+        #evaluate to a stricter boolean
+        self.configdict.update({'copy':(bool)(val)})
+            
+    def setPath(self, dirpath, key):
+        if(dirpath[-1]!='/'):
+            dirpath += '/'
+        if(path.isdir(dirpath)):
+            if(path.exists(dirpath)):
+                self.configdict.update({key:dirpath})
+            else:
+                raise NotADirectoryError(errno.ENOTDIR, strerror(errno.ENOTDIR), dirpath)
+        else:
+            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dirpath) 
     
     def readconfigs(self, file):
         config = configparser.ConfigParser()
@@ -71,7 +115,17 @@ class Cinefolders:
 #         print(self.configdict)
 
     def organizefolder(self):
-        folder = self.configdict['dirpath']
+        self.organizefolder(self.configdict['copy'])
+    
+    def organizefolder(self, copy):
+        srcfolder = self.configdict['srcpath']
+        dstfolder = self.configdict['dstpath']
+        if(srcfolder==dstfolder):
+            #same folder, cannot copy
+            if(copy):
+                raise RuntimeError("Source and destination folders are the same, cannot "+
+                "copy in place. Files can only be moved/renamed in the same folder.")
+                return False
         self.moveintofolders(src=folder, copy=False)
         
 #     def renameexisting(self):
@@ -128,12 +182,11 @@ class Cinefolders:
         if(copy==None):
             copy=self.configdict['copy']
             
-        dirpath = self.configdict['dirpath']
+        dstpath = self.configdict['dstpath']
 #         print(dirpath)
         
-        if not path.exists(dirpath):
+        if not path.exists(dstpath):
             raise NotADirectoryError(dirpath+" does not exist")
-    #       fixedpath = path.replace('\\','').rstrip()
     
         list = scandir(src)
         num = 0
