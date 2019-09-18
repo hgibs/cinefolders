@@ -8,7 +8,7 @@ PART=$1
 OLDVERSION=bump2version --dry-run --list $PART | grep current_version | awk '{split($0,a,"="); print "v"a[2]}'
 NEWVERSION=bump2version --list $PART | grep new_version | awk '{split($0,a,"="); print "v"a[2]}'
 
-
+git add .
 git commit
 git tag
 git push --tags
