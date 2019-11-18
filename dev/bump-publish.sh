@@ -26,6 +26,8 @@ git commit -F dev/git-template.txt
 git tag -a $NEWVERSION -F dev/git-template.txt
 git push --tags
 
+
+#we can also have travis-CI publish if tests pass
 python3 setup.py bdist_wheel sdist
 twine upload -r pypi dist/*
 

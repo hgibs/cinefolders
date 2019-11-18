@@ -20,4 +20,10 @@ setuptools.setup(
         "Development Status :: 2 - Pre-Alpha",
     ],
     python_requires='>=3.6',
+    install_requires=[
+        'guessit>=3.1',
+        'requests>=2.22',
+        'pycountry>=19.8.18',
+        'argparse>=1.4',
+    ],
 )
