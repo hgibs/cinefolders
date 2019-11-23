@@ -1,3 +1,7 @@
+#don't share api key
+_apikey.py
+apikey.ini
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
