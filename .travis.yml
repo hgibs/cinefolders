@@ -12,3 +12,5 @@ deploy:
     tags: true
 script:
   - pytest
+after_success:
+  codecov
