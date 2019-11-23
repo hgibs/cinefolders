@@ -11,4 +11,6 @@ deploy:
   on:
     tags: true
 script:
-  - pytest
+  - pytest --cov=./
+after_success:
+  codecov
