@@ -1,6 +1,7 @@
 cinefolders
 ===========
 [![Build Status](https://travis-ci.org/hgibs/cinefolders.svg?branch=master)](https://travis-ci.org/hgibs/cinefolders)
+[![Codecov](https://img.shields.io/codecov/c/github/hgibs/cinefolders/master.svg)](https://codecov.io/gh/hgibs/cinefiles/)
 
 [Changelog](https://github.com/hgibs/cinefolders/releases)
 
