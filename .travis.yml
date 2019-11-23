@@ -1,10 +1,11 @@
 language: python
 python:
-  - "3.6"
-install:
-  pip install -e .
+- '3.6'
+install: pip install -e .
 deploy:
   provider: pypi
-  user: "__token__"
+  user: __token__
   password:
-
+    secure: EZyV2UK8C0wlomHrRCVKAGyXcRwIUapjU1bfV0qjr06v8uohJ1GSYQ1037jj036fqsI8CyrPVFPT9FbZy/IrMa/bKFIanFYC2UwdvZwOSuc5qxsqagjmb60Us1Y0k1D6qwPr05CdGxxaBxNKQ2HeP0FNNOHt7b5AJU1Lbc/914ayLPbVRy3NY+BYtylR4ICbTaMC4sO9rvV4kSsprP5smSKAE568zSqpk9few/t6OvGV39Kx/9uSxlmZHP0YynILZV0GFkJ/PML46u9De7NurG1lLV4AoctyaV/GaYpszrNbfK9R4fUO5tt8gqvfkW702xRYZBTJYopzZtMSunUjPEWZoakQzUdvHkGY7fAdx7SFDKI1F9P9Dy0dXTluXkZO1bQYTI9K86SreJ0pr3Koxdv4pTt0JwjIpG9Aq1ZVm33/96b4SkyrOn9b+RjM4kel+TkXcbd1fMPdv05Stngf2EWwBbAzoKwnPRb00eMybhL6N9a70ba2XnvLUPtVXihjJdty37CyPHj0qdfw+HIVn0wG3ixzKfWCQsTcs6fu9itzlgsAxnAUcHlOz7KAM4Pi0E4AWVeo3mkGIjz/n0ms8fhrjcbh8588NGlLdQhGqnQ/TK7dtC5trV5i3YB/diS4JsMo1DvIJo5c/BnF4p0nN6SKq2puIfi3UQdWlMrvPfk=
+  on:
+    tags: true
