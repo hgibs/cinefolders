@@ -6,7 +6,7 @@ import logging
 from math import floor
 from time import sleep, time
 
-from . import movie, exceptions #is this necessary?
+from . import movie, exceptions, episode #is this necessary?
 
 class TMDb:
     def __init__(self, api_key, language='en', region='US'):
@@ -33,6 +33,8 @@ class TMDb:
           
         self.safetime = 0.0
         self.process_api_configs()
+
+        self.logger = logging.getLogger('cinefolders')
             
         
     
@@ -47,24 +49,40 @@ class TMDb:
         self.imgsize = 'original'
         self.available_poster_sizes = data['images']['poster_sizes']
         self.available_backdrop_sizes = data['images']['backdrop_sizes']
-    
-    def search(self, title, year=None):
+
+    def searchMovies(self, title, year=None, queryOptions=None):
+        return self.search(title, year=year, queryOptions=queryOptions, type='movie')
+
+    def searchTV(self, title, year=None, queryOptions=None):
+        return self.search(title, year=year, queryOptions=queryOptions, type='tv')
+
+    def search(self, title, year=None, queryOptions=None, type='movie'):
         results = []
         #not searching by region, to get maximum results
         api_dict = {'api_key':self.api_key,
                     'query':title}
                     
+        if(queryOptions is not None):
+            api_dict.update(queryOptions)
+
         if(year is not None):
             api_dict.update({'year':str(year)})
         query = parse.urlencode(api_dict)
-        baseurl = 'https://api.themoviedb.org/3/search/movie?'
+        baseurl = 'https://api.themoviedb.org/3/search/'+type+'?'
         fullurl = baseurl+query
+        self.logger.debug(fullurl)
         req = self.safeapi(fullurl)
         data = json.loads(req.text)
         for res in data['results']:
             
-            newmovie = movie.Movie(res,self)
-            results.append(newmovie)
+            newitem = None
+            if(type=='movie'):
+                newitem = movie.Movie(res,self)
+            elif(type=='tv'):
+                newitem = episode.Episode(res,self)
+            else:
+                raise KeyError(str(type)+" is not a valid key type for TMDb.search()")
+            results.append(newitem)
             
         return results
         
@@ -78,7 +96,7 @@ class TMDb:
         sleepdelta = self.safetime-time()
         if(sleepdelta > 0):
             #wait until safe to start API access again
-            logging.info("TMDb API is reaching rate limit - please notify the API owner!")
+            logging.info("TMDb API is reaching rate limit!")
             sleep(sleepdelta)
         thisrequest = requests.get(url)
         if(thisrequest.ok):

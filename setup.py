@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="cinefolders",
-    version="0.0.8",
+    version="0.0.9",
     author="Holland Gibson",
     author_email="cinefiles-hgibs@googlegroups.com",
     description="A utility for organizing a media folder",
@@ -26,4 +26,9 @@ setuptools.setup(
         'pycountry>=19.8.18',
         'argparse>=1.4',
     ],
+    entry_points = {
+        'console_scripts': [
+            'cinefolders = cinefolders.__main__:main'
+    ],
+}
 )

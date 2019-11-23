@@ -3,12 +3,8 @@
 name = "cinefolders"
 
 __all__ = ['organizer']
-__version__ = '0.0.8'
+__version__ = '0.0.9'
 __url__ = 'https://github.com/hgibs/cinefolders'
-
-from .organizer import Organizer
-
-from . import tmdb
 
 import sys
 

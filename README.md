@@ -3,15 +3,20 @@ cinefolders
 
 [Changelog](https://github.com/hgibs/cinefolders/releases)
 
-For organizing media folders into a structure formatted for Plex, Emby, a flash drive, etc..
+For organizing media folders into a structure formatted for Plex, Emby, a flash drive, 
+etc..
 
-It tries to reversibly rename files as best it can to follow guidelines set by MediaBrowser for 
-[movies](https://github.com/MediaBrowser/Wiki/wiki/Movie%20naming) and 
+It tries to reversibly rename files as best it can to follow guidelines set by MediaBrowser
+ for [movies](https://github.com/MediaBrowser/Wiki/wiki/Movie%20naming) and 
 [television](https://github.com/MediaBrowser/Wiki/wiki/TV%20naming). As well as provide a 
 link to TheMovieDB for more info. 
 
-If you want to get more info like the trailers, posters, reviews, etc.. Just see the sister project
-to this one: [cinefiles](https://github.com/hgibs/cinefiles).
+If you want to get more info like the trailers, posters, reviews, etc.. Just see the 
+sister project to this one: [cinefiles](https://github.com/hgibs/cinefiles).
+
+```
+cinefolders.py Videos/
+```
 
 Changes this unorganized mess:
 
@@ -48,3 +53,7 @@ Changes this unorganized mess:
         /Avatar the Last Airbender 
           /Season 2
             /Avatar the Last Airbender - S02E02 - The Cave of Two Lovers.mkv
+            
+Note: You'll need a TMDb API Key (I can't just let all of you use mine!) Its easy to get
+here: [themoviedb.org api](https://www.themoviedb.org/settings/api) Plus once you register 
+you can contribute to TMDb! Don't worry, just run `cinefolders` and it'll prompt you for it.

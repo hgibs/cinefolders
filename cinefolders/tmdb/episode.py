@@ -3,74 +3,68 @@ from urllib import parse
 import requests
 import logging
 
+# import movie
+
 # import .
-# from . import tmdb
-
-
-
 from .item import Item
 
-class Movie(Item):
+class Episode(Item):
     def __init__(self, initdict, tmdb):
-        super().__init__(initdict, tmdb)
+        super().__init__(initdict,tmdb)
 
-        keys = ['production_companies', 'original_title', 'videos',
-                'budget', 'runtime', 'backdrop_path', 'homepage', 'id',
-                'release_date', 'adult', 'genres', 'tagline', 'video',
-                'poster_path', 'title', 'popularity',
-                'production_countries', 'spoken_languages', 'imdb_id',
-                'images', 'revenue', 'vote_average', 'overview',
-                'vote_count', 'status', 'belongs_to_collection',
-                'original_language', 'original_title']
-
+        keys = ['backdrop_path', 'created_by', 'episode_run_time', 'first_air_date', 'genres', 'homepage', 'id',
+                'in_production', 'languages', 'last_air_date', 'last_episode_to_air', 'name', 'next_episode_to_air',
+                'networks', 'number_of_episodes', 'number_of_seasons', 'origin_country', 'original_language',
+                'original_name', 'overview', 'popularity', 'poster_path', 'production_companies', 'seasons', 'status',
+                'type', 'vote_average', 'vote_count', 'videos', 'images', 'credits', 'alternative_titles']
+                
         for k in keys:
-            # These are returned with any movie query:
-            # original_title
-            # videos
+            # These are the default keys:
             # backdrop_path
+            # first_air_date
             # id
-            # release_date
-            # adult
-            # video
-            # poster_path
-            # title
-            # popularity
-            # images
-            # vote_average
-            # overview
-            # vote_count
+            # name
+            # origin_country
             # original_language
-            # original_title
-
-            if(k not in self.attributes):
-                #These are the non-default keys:
-                # production_companies
-                # budget
-                # runtime
-                # homepage
+            # original_name
+            # overview
+            # popularity
+            # poster_path
+            # vote_average
+            # vote_count
+            # videos
+            # images
+            if (k not in self.attributes):
+                # These are the non-default keys:
+                # created_by
+                # episode_run_time
                 # genres
-                # tagline
-                # production_countries
-                # spoken_languages
-                # imdb_id
-                # revenue
+                # homepage
+                # in_production
+                # languages
+                # last_air_date
+                # last_episode_to_air
+                # next_episode_to_air
+                # networks
+                # number_of_episodes
+                # number_of_seasons
+                # production_companies
+                # seasons
                 # status
-                # belongs_to_collection
+                # type
+                # credits
+                # alternative_titles
                 self.attributes.update({k:''})
 
-        self.title = self.attributes['title']
-            
-        # self.attributes.update(initdict)
-        # self.id = str(self.attributes['id'])
-        # self.title = self.attributes['title']
+        self.name = self.attributes['name']
+        self.title = self.name #to make objective programming easier
 
-        if(len(self.attributes['release_date'])>=4):
-            self.ftitle = ( self.attributes['title']+" ("
-                            +self.attributes['release_date'][0:4]+")")
-            self.year = int(self.attributes['release_date'][0:4])
+        self.ftitle = self.name
+
+        if(len(self.attributes['first_air_date'])>=4):
+            self.year = int(self.attributes['first_air_date'][0:4])
         else:
             #no release date found :(
-            self.ftitle = self.title
             self.year = 0
 
     def __str__(self):
@@ -80,12 +74,21 @@ class Movie(Item):
         return str(self)
 
     def fetchinfo(self):
-        return super().fetchinfo('https://api.themoviedb.org/3/movie/')
-
+        return super().fetchinfo('https://api.themoviedb.org/3/tv/')
+        
+    def img_base_path(self):
+        retstr = self.tmdb.imgbase+self.tmdb.imgsize
+        if(retstr is None or retstr == ''):
+            return ''
+        return retstr
+        
     def processjson(self,resultsdict):
         self.attributes.update(resultsdict)
+
+        print(self.attributes)
+        exit()
     
-        self.runtime = self.attributes['runtime']
+        self.runtime = self.attributes['episode_run_time']['0']
         self.status = self.attributes['status']
         self.overview = self.attributes['overview']
         self.title = self.attributes['title']
@@ -152,3 +155,6 @@ class Movie(Item):
             
         #API looks like it sorts, but just to be safe - in order of appearence
         self.cast = sorted(tempcast, key=lambda castperson: castperson['order'])
+        
+    def getStrippedTitle(self):
+        return self.ignoreStartsWithThe(self.name)
