@@ -34,7 +34,7 @@ setup(
     },
     extras_require = {
         'dev': ['twine','wheel'],
-        'test': ['codecov','pytest','pytest-pep8','pytest-cov',
+        'test': ['coverage','pytest','pytest-pep8','pytest-cov',
                 'pytest-console-scripts'],
     }
 )

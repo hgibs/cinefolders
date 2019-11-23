@@ -1,5 +1,6 @@
 cinefolders
 ===========
+[![Build Status](https://travis-ci.org/hgibs/cinefolders.svg?branch=master)](https://travis-ci.org/hgibs/cinefolders)
 
 [Changelog](https://github.com/hgibs/cinefolders/releases)
 
