@@ -8,8 +8,10 @@ cinefolders
 
 [Changelog](https://github.com/hgibs/cinefolders/releases)
 
-For organizing media folders into a structure formatted for Plex, Emby, a flash drive, 
-etc..
+# Description
+**cinefolders** is a command-line utility for organizing organizing media folders into a structure formatted for Plex,
+Emby, a flash drive, etc.. You can also automate this to automatically add videos to your media folder, keeping
+it organized.
 
 It tries to reversibly rename files as best it can to follow guidelines set by MediaBrowser
  for [movies](https://github.com/MediaBrowser/Wiki/wiki/Movie%20naming) and 
@@ -62,3 +64,27 @@ Changes this unorganized mess:
 Note: You'll need a TMDb API Key (I can't just let all of you use mine!) Its easy to get
 here: [themoviedb.org api](https://www.themoviedb.org/settings/api) Plus once you register 
 you can contribute to TMDb! Don't worry, just run `cinefolders` and it'll prompt you for it.
+
+
+```
+usage: cinefolders [-h] [-l] [-v] [-x X] [--dry-run] [--copy]
+                   [--destination DESTINATION] [--version] [--debug]
+                   directory
+```
+
+# Options
+positional arguments:
+  directory             Location of folder holding the videos
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l                    List new file structure
+  -v                    Verbosely list actions
+  -x X                  Export all changes as a bash script
+  --dry-run             Don't change anything
+  --copy                copy instead of just moving files
+  --destination DESTINATION
+                        specify an alternate destination
+  --version             show program's version number and exit
+  --debug               debug option (only for developers)
+

@@ -5,6 +5,9 @@ apikey.ini
 #pycharm
 .idea
 
+#Mac artifacts
+.DS_Store
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

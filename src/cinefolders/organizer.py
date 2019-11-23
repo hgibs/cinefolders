@@ -38,16 +38,19 @@ class Organizer:
         apisearch = None
 
         if('apikey' not in args):
-            apisearch = search("[0-9a-f]{32}", keyfile)
             keypath = getcwd() + '/apikey.ini'
-            keyfile = Path(keypath).read_text()
+            try:
+                keyfile = Path(keypath).read_text()
+            except FileNotFoundError as e:
+                raise FileNotFoundError("No API key file found, try running cinefolders from the command line "+
+                                        "("+keypath+")")
 
             apisearch = search("[0-9a-f]{32}",keyfile)
         else:
             apisearch = search("[0-9a-f]{32}", args['apikey'])
 
         if(apisearch is None):
-            raise OSError("Could not read the API Key from '" + keypath + "' Try deleting that file and running the "
+            raise OSError("Did not find a valid API key at '" + keypath + "' Try deleting that file and running the "
                     "command line utility 'cinefolders' again to generate it.")
 
         self.apikey = apisearch.group(0)
