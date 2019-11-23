@@ -33,6 +33,8 @@ description = "A utility for organizing a media folder"
 class Organizer:
 
     def __init__(self, args):
+        if(len(args)==0):
+            raise RuntimeError("No arguments!")
 
         #find API key
         apisearch = None
@@ -54,8 +56,6 @@ class Organizer:
                     "command line utility 'cinefolders' again to generate it.")
 
         self.apikey = apisearch.group(0)
-
-        #TODO: run search to check if valid api key (aka not typo)
     
         self.optionsdict = dict(args)
         
@@ -69,19 +69,23 @@ class Organizer:
         ########################
 
         self.actions = []
-        
-        if(self.optionsdict['directory'][-1] != '/'):
-            self.optionsdict['directory']+='/'
+
+        self.setSrc(self.optionsdict['directory'])
             
         if(self.optionsdict['destination'] is not None):
+            #make sure its a string
+            #todo is a bytes path ok?
+            self.optionsdict['destination'] = str(self.optionsdict['destination'])
+
             if(self.optionsdict['destination'][-1] != '/'):
                 self.optionsdict['destination']+='/'
+            self.setDest(self.optionsdict['destination'])
         else:
-            self.optionsdict['destination'] = self.optionsdict['directory']         
-        
-        if(len(args)==0):
-            print("No arguments!")
-            sys.exit(2)
+            #set destination to operating directory
+            self.setDest(self.optionsdict['directory'])
+
+
+
 
         #create logger
         self.logger = logging.getLogger('cinefolders')
@@ -130,10 +134,10 @@ class Organizer:
         self.log = []
     
     def setDest(self,dirpath):
-        self.setPath(dirpath, 'dstpath')
+        self.setPath(dirpath, 'destination')
     
     def setSrc(self,dirpath):
-        self.setPath(dirpath, 'srcpath')
+        self.setPath(dirpath, 'directory')
         
     def setCopy(self, value):
         #evaluate to a stricter boolean
@@ -142,13 +146,14 @@ class Organizer:
     def setPath(self, dirpath, key):
         if(dirpath[-1]!='/'):
             dirpath += '/'
-        if(path.isdir(dirpath)):
-            if(path.exists(dirpath)):
+
+        if(path.exists(dirpath)):
+            if(path.isdir(dirpath)):
                 self.optionsdict.update({key:dirpath})
             else:
                 raise NotADirectoryError(errno.ENOTDIR, strerror(errno.ENOTDIR), dirpath)
         else:
-            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dirpath) 
+            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dirpath)
     
 #     def readconfigs(self, file):
 #         config = configparser.ConfigParser()
