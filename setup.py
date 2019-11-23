@@ -1,18 +1,19 @@
-import setuptools
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
-setuptools.setup(
+setup(
     name="cinefolders",
-    version="0.0.10",
+    version="0.0.11",
     author="Holland Gibson",
     author_email="cinefiles-hgibs@googlegroups.com",
     description="A utility for organizing a media folder",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url='https://github.com/hgibs/cinefolders',
-    packages=setuptools.find_packages(),
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
@@ -29,6 +30,11 @@ setuptools.setup(
     entry_points = {
         'console_scripts': [
             'cinefolders = cinefolders.__main__:main'
-    ],
-}
+        ],
+    },
+    extras_require = {
+        'dev': ['twine','wheel'],
+        'test': ['codecov','pytest','pytest-pep8','pytest-cov',
+                'pytest-console-scripts'],
+    }
 )

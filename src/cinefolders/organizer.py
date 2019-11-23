@@ -35,10 +35,16 @@ class Organizer:
     def __init__(self, args):
 
         #find API key
-        keypath = getcwd() + '/apikey.ini'
-        keyfile = Path(keypath).read_text()
+        apisearch = None
 
-        apisearch = search("[0-9a-f]{32}",keyfile)
+        if('apikey' not in args):
+            apisearch = search("[0-9a-f]{32}", keyfile)
+            keypath = getcwd() + '/apikey.ini'
+            keyfile = Path(keypath).read_text()
+
+            apisearch = search("[0-9a-f]{32}",keyfile)
+        else:
+            apisearch = search("[0-9a-f]{32}", args['apikey'])
 
         if(apisearch is None):
             raise OSError("Could not read the API Key from '" + keypath + "' Try deleting that file and running the "
