@@ -33,7 +33,7 @@ setup(
         ],
     },
     extras_require = {
-        'dev': ['twine','wheel'],
+        'dev': ['twine','wheel','bump2version'],
         'test': ['codecov','pytest','pytest-pep8','pytest-cov',
                 'pytest-console-scripts'],
     }
