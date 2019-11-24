@@ -1,3 +1,3 @@
-All features are working (mostly) now with some known bugs. It is now in Alpha stage of development. With a few more changes it'll be completely ready to go.
 
- → 0.1.0
+
+ → 
