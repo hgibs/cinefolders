@@ -186,6 +186,20 @@ class Item:
     else:
       return checkTitle
 
+  def arbitraryMatchPercentage(self,str1,str2):
+    fixedTitle = self.ignoreStartsWithThe(str1)
+    fixedVal = self.ignoreStartsWithThe(str2)
+
+    matchValue = 1.0 - (self.levenshteinDistance(fixedTitle, fixedVal) / (float)(len(fixedTitle)))
+
+    self.logger.debug('#' * 50)
+    self.logger.debug(fixedTitle)
+    self.logger.debug(fixedVal)
+    self.logger.debug(matchValue)
+    self.logger.debug('#' * 50)
+
+    return matchValue
+
   def titleMatchPercentage(self, val):
     # not actually a percentage as this can be negative (if title is longer than val)
     # ... but close enough

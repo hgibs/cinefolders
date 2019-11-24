@@ -20,6 +20,7 @@ import pycountry
 # from .cinefiles import Cinefiles
 
 from .tmdb import TMDb
+from .tmdb import movie
 
 # 
 # defaultPath = "/Volumes/Holland Gibson Ext HDD/Movies/Movies"
@@ -110,7 +111,8 @@ class Organizer:
 
     
         if(self.running_on_windows()):
-            #TODO: add windows support
+            #TODO: add windows support on v1.0
+            #TODO basically just move every path reference to Path
             print(  "This code does not handle windows " \
                     "file paths correctly, so it cannot run yet. " \
                     "I am deeply sorry for this, please wait until " \
@@ -311,7 +313,10 @@ class Organizer:
 
     def getHigherDirNames(self, it):
         #TODO stop when at specified folder
-        dirnames = it.path.split('/')
+        pathstr = str(it.path)
+        pathcutoff = pathstr.split(self.optionsdict['directory'])[-1]
+
+        dirnames = pathcutoff.split('/')
         revnames = []
         
         if(it.is_file()):
@@ -363,11 +368,11 @@ class Organizer:
         
         newName = newName.strip()
     
-        if(newName[0:4].lower() == 'the '):
-            newName = newName[4:]
-            newName += ', The '
-#         newName = newName.title()
-    
+#         if(newName[0:4].lower() == 'the '):
+#             newName = newName[4:]
+#             newName += ', The '
+# #         newName = newName.title()
+#
 
         if('year' in i_info):
             year = str(i_info['year'])
@@ -424,13 +429,16 @@ class Organizer:
         if (self.checkifmovie(originalinfo['type'])):
             # movie
             newName = resultitem.title
-            newName += ' (' + str(resultitem.year) + ')'
+            if(resultitem.year != 0):
+                newName += ' (' + str(resultitem.year) + ')'
             # newName += '.' + spname.split('.')[-1]
             newPath = 'Movies/' + newName + '/' + newName
         else:
             # tv show
             newPath = 'TV Shows/' + resultitem.title + '/Season ' + str(originalinfo['season']) + '/' + resultitem.title
             newPath += " S{:02}E{:02}".format(originalinfo['season'],originalinfo['episode'])
+            print(resultitem)
+            exit(1)
 
         size = None
         edition = None
@@ -455,11 +463,13 @@ class Organizer:
         return newPath
 
     def contextSearch(self, topresult, guessedTitle, direntryitem):
-        goodscore = 0.80
-        # medscore = 0.25
+        goodscore = 0.80 #constitutes a match good enough to ignore other contextual searches
+        scorecutoff = 0.25 #the cutoff to when we give up and don't rename the file
 
         # topresult = results[0]
-        matchvalue = topresult.titleMatchPercentage(guessedTitle)
+        matchvalue = 0
+        if(topresult is not None):
+            matchvalue = topresult.titleMatchPercentage(guessedTitle)
 
         info = guessit(direntryitem.name)
 
@@ -475,31 +485,69 @@ class Organizer:
 
             #search the directory path for a better name?
             folders = self.getHigherDirNames(direntryitem)
-            n0dir = folders.pop()
-            n1dir = folders.pop()
+            n0dir = None
+            n1dir = None
+            if (len(folders)>0):
+                n0dir = folders.pop()
+            if (len(folders) > 0):
+                n1dir = folders.pop()
+
             self.logger.debug("Trying search for "+str(n0dir)+' & '+str(n1dir))
 
             #TODO: properly search for '/TVshow/season 1/episode1.avi' by just concatenating
 
             #does a search result match a directory name better than the filename?
-            n0results = self.searchitem(info, str(n0dir))
-            n1results = self.searchitem(info, str(n1dir))
+            n0results = None
+            n1results = None
+            if(n0dir is not None):
+                n0results = self.searchitem(info, str(n0dir))
+            if (n1dir is not None):
+                n1results = self.searchitem(info, str(n1dir))
 
             dirsearchresults = [(n0results,str(n0dir)),
                                 (n1results,str(n1dir))]
 
             for rtuple in dirsearchresults:
-                results = rtuple[0]
-                dirsearchname = rtuple[1]
-                if(len(results)>0):
-                    value = results[0].titleMatchPercentage(dirsearchname)
-                    self.logger.debug(str(results[0])+' | '+str(dirsearchname))
-                    scores.append(value)
-                    data.append((results[0],info))
+                if(rtuple[0] is not None):
+                    results = rtuple[0]
+                    dirsearchname = rtuple[1]
+                    if(len(results)>0):
+                        value = results[0].titleMatchPercentage(dirsearchname)
+                        self.logger.debug(str(results[0])+' | '+str(dirsearchname))
+                        scores.append(value)
+                        data.append((results[0],info))
+
+            #what if all we are missing is the subtitle?
+            #that means we should expect a good match in the beginning
+            if (topresult is not None):
+                #we need a result to search against
+                giventitle = info['title'].lower()
+                titleloc = topresult.title.lower().find(giventitle)
+                colonloc = topresult.title.lower().find(':')
+                self.logger.debug("Context search for subtitle in: '"+giventitle+"' in '"+topresult.title.lower()+"'")
+                self.logger.debug(str(titleloc)+', '+str(colonloc))
+                if(titleloc>=0):
+                    if(colonloc > 0):
+                        if(titleloc+len(giventitle) <= colonloc):
+                            #our title falls before the subtitle
+                            #ignore the subtitle and check the match
+                            resulttitlewithoutcolon = topresult.title[0:colonloc].lower()
+                            nosubtitlescore = topresult.arbitraryMatchPercentage(resulttitlewithoutcolon,giventitle)
+                            #now we add in the RESULT's title (because it has the subtitle)
+                            scores.append(nosubtitlescore)
+                            data.append((topresult,info))
+                        else:
+                            #title falls after the colon... lets not use this method for context
+                            pass
+                    else:
+                        #no colon, so maybe we are just missing some major words?
+                        #there is too much unknown here so lets ignore it
+                        pass
+                else:
+                    #info['title'] not located in top result - bad news
+                    pass
 
             #What about the country info?
-
-            countrymatchvalue = 0
             if ('country' in info):
                 country_code = info['country'].alpha2
                 countryname = pycountry.countries.get(alpha_2=country_code).name
@@ -509,9 +557,16 @@ class Organizer:
                 data.append((topresult,info))
 
             bestscore = max(scores)
-            i = scores.index(bestscore)
-            dtuple = data[i]
-            return self.buildpath(dtuple[0],dtuple[1])
+
+            if(bestscore<scorecutoff):
+                info.update({'title':self.createTitle(info),
+                             'id':0}) #required metadata
+                fakemovie = movie.Movie(info, None)
+                return self.buildpath(fakemovie,info)
+            else:
+                i = scores.index(bestscore)
+                dtuple = data[i]
+                return self.buildpath(dtuple[0],dtuple[1])
 
 
     #create new filename from limited filesystem info
@@ -535,6 +590,8 @@ class Organizer:
             newPath = spath
         else:
             self.logger.info("No result for '"+guessitTitle+"' in search results")
+            spath = self.contextSearch(None, guessitTitle, en)
+            newPath = spath
             newName = self.createTitle(i_info)
 
         if(newPath == ''):
