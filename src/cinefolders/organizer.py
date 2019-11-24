@@ -20,6 +20,7 @@ import pycountry
 # from .cinefiles import Cinefiles
 
 from .tmdb import TMDb, movie, episode
+from .export import ExportBash
 # from .tmdb import movie
 
 # 
@@ -28,8 +29,6 @@ from .tmdb import TMDb, movie, episode
 # in folders?\n("+defaultPath+"): ")
 
 description = "A utility for organizing a media folder"
-
-# TMDB_API_KEY = 'beb6b398540ccc4245a5b4739186a0bb'
 
 class Organizer:
 
@@ -69,25 +68,6 @@ class Organizer:
         # Initialize Variables #
         ########################
 
-        self.actions = []
-
-        self.setSrc(self.optionsdict['directory'])
-            
-        if(self.optionsdict['destination'] is not None):
-            #make sure its a string
-            #todo is a bytes path ok?
-            self.optionsdict['destination'] = str(self.optionsdict['destination'])
-
-            if(self.optionsdict['destination'][-1] != '/'):
-                self.optionsdict['destination']+='/'
-            self.setDest(self.optionsdict['destination'])
-        else:
-            #set destination to operating directory
-            self.setDest(self.optionsdict['directory'])
-
-
-
-
         #create logger
         self.logger = logging.getLogger('cinefolders')
         
@@ -109,6 +89,24 @@ class Organizer:
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
 
+        if(self.debugmode()):
+            self.logger.debug(str(self.optionsdict))
+
+        self.actions = []
+
+        self.setSrc(self.optionsdict['directory'])
+
+        if (self.optionsdict['destination'] is not None):
+            # make sure its a string
+            # todo is a bytes path ok?
+            self.optionsdict['destination'] = str(self.optionsdict['destination'])
+
+            if (self.optionsdict['destination'][-1] != '/'):
+                self.optionsdict['destination'] += '/'
+            self.setDest(self.optionsdict['destination'])
+        else:
+            # set destination to operating directory
+            self.setDest(self.optionsdict['directory'])
     
         if(self.running_on_windows()):
             #TODO: add windows support on v1.0
@@ -122,6 +120,13 @@ class Organizer:
             sys.exit(1) 
 #         maxsize = pow(2,31)
 
+        # set up export
+        self.export = (self.optionsdict['x'] is not None)
+        if (self.export):
+            #implies listonly
+            self.optionsdict['l'] = True
+            self.exporter = ExportBash(Path(self.optionsdict['x']))
+            self.logger.info("Exporting bash script to: "+str(self.exporter.exportLocation))
                 
         #######################
         # Set class variables #
@@ -146,27 +151,28 @@ class Organizer:
                 raise fee
 
     def setDest(self,dirpath):
-        self.checkDestExists(dirpath)
-        self.setPath(dirpath, 'destination')
+        p = Path(dirpath)
+        self.checkDestExists(p)
+        self.setPath(p, 'destination')
     
     def setSrc(self,dirpath):
-        self.setPath(dirpath, 'directory')
-        
+        p = Path(dirpath)
+        self.setPath(p, 'directory')
+
     def setCopy(self, value):
         #evaluate to a stricter boolean
         self.configdict.update({'copy':(bool)(value)})
             
-    def setPath(self, dirpath, key):
-        if(dirpath[-1]!='/'):
-            dirpath += '/'
+    def setPath(self, pathobj, key):
 
-        if(path.exists(dirpath)):
-            if(path.isdir(dirpath)):
-                self.optionsdict.update({key:dirpath})
+        if(pathobj.exists()):
+            if(pathobj.is_dir()):
+                #convert to absolute path to avoid possible issues
+                self.optionsdict.update({key:pathobj.absolute()})
             else:
-                raise NotADirectoryError(errno.ENOTDIR, strerror(errno.ENOTDIR), dirpath)
+                raise NotADirectoryError(errno.ENOTDIR, strerror(errno.ENOTDIR), str(pathobj))
         else:
-            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dirpath)
+            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), str(pathobj))
     
 #     def readconfigs(self, file):
 #         config = configparser.ConfigParser()
@@ -232,11 +238,15 @@ class Organizer:
 #                     print("Beta risk accepted! Moving files instead of copying")
                 
         num = self.organizefolder(srcfolder)
+        print()
                 
         if(copy):
             returnstmt = str(num)+" videos copied into better-named folders."
         else:
             returnstmt = str(num)+" videos moved into better-named folders."
+
+        if(self.export) : self.exporter.writeout()
+
         print(returnstmt)     
     
     def printStatus(self, txt):
@@ -263,7 +273,7 @@ class Organizer:
         outlist = []
         copy = self.optionsdict['copy'] 
         
-        dirpath = self.optionsdict['destination']
+        dirpath = str(self.optionsdict['destination'])
         
         listonly = self.optionsdict['l']
 
@@ -271,36 +281,43 @@ class Organizer:
         #TODO this means we have to ignore non-video files for a search
 
         for item in list:
+            if(not self.debugmode()):
+                print(".",end='',flush=True)
             self.logger.debug('>'*50)
             self.logger.debug(item.path)
             if(not item.name.startswith('.')): #ignore hidden files
                 if(item.is_file()):
                     #TODO add tmdb_id file
                     endpath = self.fixnameinfo(item)
-                    finalpath = dirpath+endpath
+                    finalpath = Path(dirpath+'/'+endpath)
 
                     if(not listonly):
-                        if(not path.exists(finalpath)):
-                            self.printStatus('Creating directory '+finalpath)
+                        if(not finalpath.exists()):
+                            self.printStatus('Creating directory '+str(finalpath))
                             makedirs(finalpath)
                     else:
                         outlist.append(finalpath)
                     
                     if(not listonly):
                         if(copy):
-                            self.printStatus('Copying to '+finalpath)
+                            self.exporter.addCopy(Path(item.path), finalpath)
+                            self.printStatus('Copying to '+str(finalpath))
                             copy2(item.path, finalpath)
                         else:
-                            self.printStatus('Moving to '+finalpath)
+                            self.exporter.addMove(Path(item.path), finalpath)
+                            self.printStatus('Moving to '+str(finalpath))
                             move(item.path, finalpath)
                     else:
-                        self.printStatus(item.name+' > '+finalpath)
+                        if(copy):
+                            self.exporter.addCopy(Path(item.path), finalpath)
+                        else:
+                            self.exporter.addMove(Path(item.path), finalpath)
+                        self.printStatus(item.name+' > '+str(finalpath))
                     num+=1
                     self.logaction(item.name,finalpath)
                 else:
                     #directory - recursive search
                     num += self.organizefolder(item.path,num)
-
         return num
                 
             
@@ -314,7 +331,7 @@ class Organizer:
     def getHigherDirNames(self, it):
         #TODO stop when at specified folder
         pathstr = str(it.path)
-        pathcutoff = pathstr.split(self.optionsdict['directory'])[-1]
+        pathcutoff = pathstr.split(str(self.optionsdict['directory']))[-1]
 
         dirnames = pathcutoff.split('/')
         revnames = []
@@ -463,11 +480,13 @@ class Organizer:
                 if(not addedSlash):
                     newPath += ' -'
                     addedSlash = True
-                newPath += ' '+extra
+                for e in extra:
+                    newPath += ' '+str(e)
 
         return newPath
 
     def contextSearch(self, topresult, guessedTitle, direntryitem):
+        #todo search title as TV show to check for better result
         goodscore = 0.80 #constitutes a match good enough to ignore other contextual searches
         scorecutoff = 0.25 #the cutoff to when we give up and don't rename the file
 
