@@ -6,7 +6,7 @@ import logging
 from math import floor
 from time import sleep, time
 
-from . import movie, exceptions, episode #is this necessary?
+from . import movie, exceptions, season #is this necessary?
 
 class TMDb:
     def __init__(self, api_key, language='en', region='US'):
@@ -79,7 +79,7 @@ class TMDb:
             if(type=='movie'):
                 newitem = movie.Movie(res,self)
             elif(type=='tv'):
-                newitem = episode.Episode(res,self)
+                newitem = season.Season(res, self)
             else:
                 raise KeyError(str(type)+" is not a valid key type for TMDb.search()")
             results.append(newitem)

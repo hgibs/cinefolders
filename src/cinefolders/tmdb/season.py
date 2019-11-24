@@ -8,7 +8,7 @@ import logging
 # import .
 from .item import Item
 
-class Episode(Item):
+class Season(Item):
     def __init__(self, initdict, tmdb):
         super().__init__(initdict,tmdb)
 
