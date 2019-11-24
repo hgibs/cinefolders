@@ -1,6 +1,7 @@
 #don't share api key
 _apikey.py
 apikey.ini
+apikey.ini.save
 
 #pycharm
 .idea
