@@ -1,4 +1,3 @@
-Now with no changes!
-====================
+All features are working (mostly) now with some known bugs. It is now in Alpha stage of development. With a few more changes it'll be completely ready to go.
 
-v0.0.7 → v0.0.8
+ → 0.1.0
