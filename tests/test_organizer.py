@@ -48,7 +48,19 @@ STRUCTURE = [   'Down_periscope_directors_cut_4k.avi',
                 # 'dsfasdfd/dfasdlkjfosokij.mp4', #this is really hard to handle well it works on some environments only
                 'Mulan/dswojf32908.mp4',
                 'Good Ones/Horror/The.Shining.1980.US.DC.1080p.BluRay.H264.AAC-RARBG.mp4',
-                'Avatar - 2x02 -.mkv'
+                'Avatar - 2x02 -.mkv',
+                'THIS IS THE END.mp4',
+                "The Hobbit 1 An.Unexpected.Journey.2012.720p.BRrip.x264.GAZ.YIFY.mp4",
+                "Underworld - Evolution.avi",
+                "Warm.Bodies.2013.DVDRip.XviD-PTpOWeR.avi",
+                "History Channel - Declassified - The Taliban.avi",
+                "National Geographic - Sleepless in America.mkv",
+                "Life/BBC.Life.s01e09.Plants.2009.HDTV.720p.x264.AC3.mkv",
+                "Hobbit: An Unexpected Journey/hobbit 1.mkv",
+                "Robot.Chicken.Star.Wars.Episode.III.avi",
+                "Terminator 2.avi",
+                "Underworld 1.avi",
+                "The Shining (1980)/The Shining (1980) - 1080p Director's Cut.mp4",
                 ]
 
 CORRECTST = ["Movies/Down Periscope (1996)/Down Periscope (1996) - 2160p Director's Cut.avi",
@@ -56,7 +68,20 @@ CORRECTST = ["Movies/Down Periscope (1996)/Down Periscope (1996) - 2160p Directo
              # "Movies/Dfasdlkjfosokij/Dfasdlkjfosokij.mp4",
              "Movies/Mulan (1998)/Mulan (1998).mp4",
              "Movies/The Shining (1980)/The Shining (1980) - 1080p Director's Cut.mp4",
-             "TV Shows/Avatar: The Last Airbender/Season 2/Avatar: The Last Airbender S02E02 The Cave of Two Lovers.mkv"]
+             "TV Shows/Avatar: The Last Airbender/Season 2/Avatar: The Last Airbender S02E02 The Cave of Two Lovers.mkv",
+             "Movies/This Is the End (2013)/This Is the End (2013).mp4",
+             "Movies/The Hobbit: An Unexpected Journey (2012)/The Hobbit: An Unexpected Journey (2012) - 720p Reencoded Rip.mp4"
+             "Movies/Underworld: Evolution (2006)/Underworld: Evolution (2006).avi",
+             "Movies/Warm Bodies (2013)/Warm Bodies (2013) - Rip.avi",
+             "TV Shows/History Channel Declassified/Season 1/History Channel Declassified S01E02 Declassified: The Taliban",
+             "Movies/Sleepless in America (2014)/Sleepless in America (2014).mkv",
+             "TV Shows/Life/Season 1/Life S01E09 Plants.mkv",
+             "Movies/The Hobbit: An Unexpected Journey (2012)/The Hobbit: An Unexpected Journey (2012) - 720p Reencoded Rip COPY 1.mp4",
+             "Movies/Robot Chicken: Star Wars Episode III (2010)/Robot Chicken: Star Wars Episode III (2010).avi",
+             "Movies/Terminator 2: Judgment Day (1991)/Terminator 2: Judgment Day (1991).avi",
+             "Movies/Underworld (2003)/Underworld (2003).avi",
+             "Movies/The Shining (1980)/The Shining (1980) - 1080p Director's Cut COPY 1.mp4"
+             ]
 
 
 def fixdirectory(options,tmpdir):
