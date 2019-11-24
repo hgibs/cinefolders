@@ -7,6 +7,7 @@ import logging
 
 # import .
 from .item import Item
+from .episode import Episode
 
 class Season(Item):
     def __init__(self, initdict, tmdb):
@@ -73,8 +74,11 @@ class Season(Item):
     def __repr__(self):
         return str(self)
 
-    def fetchinfo(self):
-        return super().fetchinfo('https://api.themoviedb.org/3/tv/')
+    def fetchinfo(self,complexurl=None):
+        if(complexurl is None):
+            super().fetchinfo('https://api.themoviedb.org/3/tv/')
+        else:
+            super().fetchinfo('',complexurl)
         
     def img_base_path(self):
         retstr = self.tmdb.imgbase+self.tmdb.imgsize
@@ -158,3 +162,8 @@ class Season(Item):
         
     def getStrippedTitle(self):
         return self.ignoreStartsWithThe(self.name)
+
+    def getepisode(self,season,episodenum):
+        ep = Episode({'tv_id':self.id,'season_number':int(season),'episode_number':episodenum},self.tmdb)
+        ep.fetchinfo()
+        return ep

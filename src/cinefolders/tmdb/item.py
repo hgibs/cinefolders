@@ -37,7 +37,7 @@ class Item:
   def __repr__(self):
     return str(self)
 
-  def fetchinfo(self,baseurl):
+  def fetchinfo(self,baseurl,complexurl=None):
     if (not self.fetched):
       langkey = self.tmdb.lang
       if (self.tmdb.region is not None):
@@ -48,7 +48,11 @@ class Item:
                                'language': langkey,
                                'include_image_language': self.tmdb.lang + ',null',
                                'append_to_response': 'videos,images,credits,alternative_titles', })
-      fullurl = baseurl + self.id + '?' + query
+      fullurl = ''
+      if (complexurl is None):
+        fullurl = baseurl + self.id + '?' + query
+      else:
+        fullurl = complexurl + '?' + query
       self.debugquery = fullurl
       req = requests.get(fullurl)
       try:

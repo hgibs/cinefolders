@@ -90,7 +90,6 @@ class TMDb:
         idnum = int(id)
         return movie.Movie({'id':idnum},self)
         
-        
     def safeapi(self, url, callnum=0):
 #         now = floor(time())
         sleepdelta = self.safetime-time()

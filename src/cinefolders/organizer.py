@@ -19,8 +19,8 @@ import pycountry
 
 # from .cinefiles import Cinefiles
 
-from .tmdb import TMDb
-from .tmdb import movie
+from .tmdb import TMDb, movie, episode
+# from .tmdb import movie
 
 # 
 # defaultPath = "/Volumes/Holland Gibson Ext HDD/Movies/Movies"
@@ -437,8 +437,13 @@ class Organizer:
             # tv show
             newPath = 'TV Shows/' + resultitem.title + '/Season ' + str(originalinfo['season']) + '/' + resultitem.title
             newPath += " S{:02}E{:02}".format(originalinfo['season'],originalinfo['episode'])
-            print(resultitem)
-            exit(1)
+
+            #get episode name info
+            epdict = {'tv_id':resultitem.id,'episode_number':int(originalinfo['episode']),
+                      'season_number':int(originalinfo['season'])}
+            ep = episode.Episode(epdict, self.tmdb)
+            ep.fetchinfo()
+            newPath += ' '+ep.name
 
         size = None
         edition = None
