@@ -125,7 +125,7 @@ def test_destination(tmpdir):
     testoptions.update({'directory':path})
     testobj = organizer.Organizer(testoptions)
 
-    assert testobj.optionsdict['destination'] == path
+    assert testobj.optionsdict['destination'] == Path(path)
 
 def test_baddestination():
     #make sure destination is created
@@ -140,14 +140,6 @@ def test_baddestination():
     # with pytest.raises(FileNotFoundError):
     testobj = organizer.Organizer(testoptions)
     assert Path(baddir).exists()
-
-def test_createslash(tmpdir):
-    pathnoslash = str(tmpdir.dirpath())
-    testoptions = dict(STDOPTIONSWKEY)
-    testoptions.update({'directory': pathnoslash})
-    testobj = organizer.Organizer(testoptions)
-
-    assert testobj.optionsdict['directory'] == pathnoslash+'/'
 
 def test_namingmovies(tmpdir):
     fixdirectory(STDOPTIONSWKEY, tmpdir)

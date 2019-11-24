@@ -127,6 +127,9 @@ class Organizer:
             self.optionsdict['l'] = True
             self.exporter = ExportBash(Path(self.optionsdict['x']))
             self.logger.info("Exporting bash script to: "+str(self.exporter.exportLocation))
+        else:
+            #this class is useful for other things too
+            self.exporter = ExportBash(self.optionsdict['directory'].joinpath("export.sh"))
                 
         #######################
         # Set class variables #
@@ -480,8 +483,11 @@ class Organizer:
                 if(not addedSlash):
                     newPath += ' -'
                     addedSlash = True
-                for e in extra:
-                    newPath += ' '+str(e)
+                if(isinstance(extra,list)):
+                    for e in extra:
+                        newPath += ' '+str(e)
+                else:
+                    newPath += ' ' + str(extra)
 
         return newPath
 
