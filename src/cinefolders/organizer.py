@@ -132,8 +132,19 @@ class Organizer:
 #         self.interactive = not self.configdict['non-interactive']
         
         self.log = []
-    
+
+    def checkDestExists(self,dirpath):
+        try:
+            Path(dirpath).mkdir(parents=True)
+        except FileExistsError as fee:
+            if(fee.errno == 17):
+                #ignore if dest already exists
+                pass
+            else:
+                raise fee
+
     def setDest(self,dirpath):
+        self.checkDestExists(dirpath)
         self.setPath(dirpath, 'destination')
     
     def setSrc(self,dirpath):
@@ -184,17 +195,14 @@ class Organizer:
         
         srcfolder = self.optionsdict['directory']
         dstfolder = self.optionsdict['destination']
-        if(dstfolder is None):
-            dstfolder = srcfolder
-            if(copy):
-                raise RuntimeError("Source and destination folders are the same, cannot " \
-                "copy in place. Files can only be moved/renamed in the same folder.")
+        if(srcfolder == dstfolder and copy):
+            raise RuntimeError("Source and destination folders are the same, cannot " \
+            "copy in place. Files can only be moved/renamed in the same folder.")
                 
         if not path.exists(srcfolder):
             raise NotADirectoryError(srcfolder+" does not exist (source folder)")
         if not path.exists(dstfolder):
-            raise NotADirectoryError(dstfolder+" does not exist (destination folder)")
-    
+            self.checkDestExists(dstfolder)
         
         num = 0
         
@@ -258,6 +266,7 @@ class Organizer:
         listonly = self.optionsdict['l']
 
         #TODO add non-video files or unknown files to destination (like bring notes, posters, etc along to destination
+        #TODO this means we have to ignore non-video files for a search
 
         for item in list:
             self.logger.debug('>'*50)
@@ -409,7 +418,6 @@ class Organizer:
             raise RuntimeError("type must be episode or movie")
 
     def buildpath(self, resultitem, originalinfo):
-        #only pulls type, year, and season (if tv show) from originalinfo
         newName = ''
         newPath = ''
 
@@ -423,6 +431,26 @@ class Organizer:
             # tv show
             newPath = 'TV Shows/' + resultitem.title + '/Season ' + str(originalinfo['season']) + '/' + resultitem.title
             newPath += " S{:02}E{:02}".format(originalinfo['season'],originalinfo['episode'])
+
+        size = None
+        edition = None
+        other = None
+
+        if('edition' in originalinfo):
+            edition = originalinfo['edition']
+        if ('screen_size' in originalinfo):
+            size = originalinfo['screen_size']
+        if ('other' in originalinfo):
+            other = originalinfo['other']
+
+        addedSlash = False
+
+        for extra in [size,edition,other]:
+            if(extra is not None):
+                if(not addedSlash):
+                    newPath += ' -'
+                    addedSlash = True
+                newPath += ' '+extra
 
         return newPath
 

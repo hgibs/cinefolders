@@ -43,23 +43,19 @@ Changes this unorganized mess:
     /Videos
       /Movies
         /Down Periscope (1996)
-          /Down Periscope (1996) - 1080p.mp4
-          /Down Periscope (1996) - 4K.mp4
-          /tt9101.html
+          /Down Periscope (1996).mp4
+          /Down Periscope (1996) - Ultra HD.mp4
         /Grand Budapest Hotel (2014)
           /Grand Budapest Hotel (2014).mkv
-          /tt120467.html
         /Mulan (1998)
-          /mulan.mp4
+          /Mulan (1998).mp4
         /The Shining (1980)  
-          /The Shining (1980).mp4
-        /Pirates of the Caribbean The Curse of the Black Pearl/  
-          /blackpearl.mpv
+          /The Shining (1980) - 1080p Director's Cut.mp4
                 
       /TV Shows
         /Avatar the Last Airbender 
           /Season 2
-            /Avatar the Last Airbender - S02E02 - The Cave of Two Lovers.mkv
+            /Avatar the Last Airbender S02E02 The Cave of Two Lovers.mkv
             
 Note: You'll need a TMDb API Key (I can't just let all of you use mine!) Its easy to get
 here: [themoviedb.org api](https://www.themoviedb.org/settings/api) Plus once you register 
@@ -73,6 +69,7 @@ usage: cinefolders [-h] [-l] [-v] [-x X] [--dry-run] [--copy]
 ```
 
 # Options
+```
 positional arguments:
   directory             Location of folder holding the videos
 
@@ -87,4 +84,5 @@ optional arguments:
                         specify an alternate destination
   --version             show program's version number and exit
   --debug               debug option (only for developers)
+```
 
