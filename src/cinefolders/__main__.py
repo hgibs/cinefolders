@@ -82,18 +82,18 @@ def main():
 #     parser = argparse.ArgumentParser(description='Intelligently organize a directory of '
 #             'movies and/or tv shows to make it easier to read for yourself, or programs '
 #             'like Plex or Jellyfin.')
-    parser.add_argument('-l', action="store_true", help="List new file structure")
-    parser.add_argument('-v', action="store_true", help="Verbosely list actions")
-    parser.add_argument('-x', help="Export all changes as a bash script")
-    parser.add_argument('--dry-run', action="store_true", help="Don't change anything")
+    parser.add_argument('-l', action="store_true", help="list new file structure")
+    parser.add_argument('-v', action="store_true", help="verbosely list actions")
+    parser.add_argument('-x', help="export all changes as a bash script")
+    parser.add_argument('--dry-run', action="store_true", help="don't change anything")
     parser.add_argument('--copy', action="store_true", 
             help="copy instead of just moving files")
-    parser.add_argument("directory", help="Location of folder holding the videos")
+    parser.add_argument("directory", help="location of folder holding the videos")
     parser.add_argument('--destination', dest='destination', 
-            help='specify an alternate destination')
+            help='specify an alternate destination instead of moving/copying in place')
     parser.add_argument('--version', action='version', version='%(prog)s '+str(version))
     
-    parser.add_argument('--debug', action="store_true", help="debug option")
+    parser.add_argument('--debug', action="store_true", help="debug option (for developers)")
     args = parser.parse_args()
     
     checkapikey()

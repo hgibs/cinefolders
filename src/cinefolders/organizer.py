@@ -19,7 +19,9 @@ import pycountry
 
 # from .cinefiles import Cinefiles
 
-from .tmdb import TMDb
+from .tmdb import TMDb, movie, episode
+from .export import ExportBash
+# from .tmdb import movie
 
 # 
 # defaultPath = "/Volumes/Holland Gibson Ext HDD/Movies/Movies"
@@ -28,31 +30,32 @@ from .tmdb import TMDb
 
 description = "A utility for organizing a media folder"
 
-# TMDB_API_KEY = 'beb6b398540ccc4245a5b4739186a0bb'
-
 class Organizer:
 
     def __init__(self, args):
+        if(len(args)==0):
+            raise RuntimeError("No arguments!")
 
         #find API key
         apisearch = None
 
         if('apikey' not in args):
-            apisearch = search("[0-9a-f]{32}", keyfile)
             keypath = getcwd() + '/apikey.ini'
-            keyfile = Path(keypath).read_text()
+            try:
+                keyfile = Path(keypath).read_text()
+            except FileNotFoundError as e:
+                raise FileNotFoundError("No API key file found, try running cinefolders from the command line "+
+                                        "("+keypath+")")
 
             apisearch = search("[0-9a-f]{32}",keyfile)
         else:
             apisearch = search("[0-9a-f]{32}", args['apikey'])
 
         if(apisearch is None):
-            raise OSError("Could not read the API Key from '" + keypath + "' Try deleting that file and running the "
+            raise OSError("Did not find a valid API key at '" + keypath + "' Try deleting that file and running the "
                     "command line utility 'cinefolders' again to generate it.")
 
         self.apikey = apisearch.group(0)
-
-        #TODO: run search to check if valid api key (aka not typo)
     
         self.optionsdict = dict(args)
         
@@ -64,21 +67,6 @@ class Organizer:
         ########################
         # Initialize Variables #
         ########################
-
-        self.actions = []
-        
-        if(self.optionsdict['directory'][-1] != '/'):
-            self.optionsdict['directory']+='/'
-            
-        if(self.optionsdict['destination'] is not None):
-            if(self.optionsdict['destination'][-1] != '/'):
-                self.optionsdict['destination']+='/'
-        else:
-            self.optionsdict['destination'] = self.optionsdict['directory']         
-        
-        if(len(args)==0):
-            print("No arguments!")
-            sys.exit(2)
 
         #create logger
         self.logger = logging.getLogger('cinefolders')
@@ -101,9 +89,28 @@ class Organizer:
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
 
+        if(self.debugmode()):
+            self.logger.debug(str(self.optionsdict))
+
+        self.actions = []
+
+        self.setSrc(self.optionsdict['directory'])
+
+        if (self.optionsdict['destination'] is not None):
+            # make sure its a string
+            # todo is a bytes path ok?
+            self.optionsdict['destination'] = str(self.optionsdict['destination'])
+
+            if (self.optionsdict['destination'][-1] != '/'):
+                self.optionsdict['destination'] += '/'
+            self.setDest(self.optionsdict['destination'])
+        else:
+            # set destination to operating directory
+            self.setDest(self.optionsdict['directory'])
     
         if(self.running_on_windows()):
-            #TODO: add windows support
+            #TODO: add windows support on v1.0
+            #TODO basically just move every path reference to Path
             print(  "This code does not handle windows " \
                     "file paths correctly, so it cannot run yet. " \
                     "I am deeply sorry for this, please wait until " \
@@ -113,6 +120,16 @@ class Organizer:
             sys.exit(1) 
 #         maxsize = pow(2,31)
 
+        # set up export
+        self.export = (self.optionsdict['x'] is not None)
+        if (self.export):
+            #implies listonly
+            self.optionsdict['l'] = True
+            self.exporter = ExportBash(Path(self.optionsdict['x']))
+            self.logger.info("Exporting bash script to: "+str(self.exporter.exportLocation))
+        else:
+            #this class is useful for other things too
+            self.exporter = ExportBash(self.optionsdict['directory'].joinpath("export.sh"))
                 
         #######################
         # Set class variables #
@@ -125,27 +142,40 @@ class Organizer:
 #         self.interactive = not self.configdict['non-interactive']
         
         self.log = []
-    
+
+    def checkDestExists(self,dirpath):
+        try:
+            Path(dirpath).mkdir(parents=True)
+        except FileExistsError as fee:
+            if(fee.errno == 17):
+                #ignore if dest already exists
+                pass
+            else:
+                raise fee
+
     def setDest(self,dirpath):
-        self.setPath(dirpath, 'dstpath')
+        p = Path(dirpath)
+        self.checkDestExists(p)
+        self.setPath(p, 'destination')
     
     def setSrc(self,dirpath):
-        self.setPath(dirpath, 'srcpath')
-        
+        p = Path(dirpath)
+        self.setPath(p, 'directory')
+
     def setCopy(self, value):
         #evaluate to a stricter boolean
         self.configdict.update({'copy':(bool)(value)})
             
-    def setPath(self, dirpath, key):
-        if(dirpath[-1]!='/'):
-            dirpath += '/'
-        if(path.isdir(dirpath)):
-            if(path.exists(dirpath)):
-                self.optionsdict.update({key:dirpath})
+    def setPath(self, pathobj, key):
+
+        if(pathobj.exists()):
+            if(pathobj.is_dir()):
+                #convert to absolute path to avoid possible issues
+                self.optionsdict.update({key:pathobj.absolute()})
             else:
-                raise NotADirectoryError(errno.ENOTDIR, strerror(errno.ENOTDIR), dirpath)
+                raise NotADirectoryError(errno.ENOTDIR, strerror(errno.ENOTDIR), str(pathobj))
         else:
-            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), dirpath) 
+            raise FileNotFoundError(errno.ENOENT, strerror(errno.ENOENT), str(pathobj))
     
 #     def readconfigs(self, file):
 #         config = configparser.ConfigParser()
@@ -176,17 +206,14 @@ class Organizer:
         
         srcfolder = self.optionsdict['directory']
         dstfolder = self.optionsdict['destination']
-        if(dstfolder is None):
-            dstfolder = srcfolder
-            if(copy):
-                raise RuntimeError("Source and destination folders are the same, cannot " \
-                "copy in place. Files can only be moved/renamed in the same folder.")
+        if(srcfolder == dstfolder and copy):
+            raise RuntimeError("Source and destination folders are the same, cannot " \
+            "copy in place. Files can only be moved/renamed in the same folder.")
                 
         if not path.exists(srcfolder):
             raise NotADirectoryError(srcfolder+" does not exist (source folder)")
         if not path.exists(dstfolder):
-            raise NotADirectoryError(dstfolder+" does not exist (destination folder)")
-    
+            self.checkDestExists(dstfolder)
         
         num = 0
         
@@ -214,11 +241,15 @@ class Organizer:
 #                     print("Beta risk accepted! Moving files instead of copying")
                 
         num = self.organizefolder(srcfolder)
+        print()
                 
         if(copy):
             returnstmt = str(num)+" videos copied into better-named folders."
         else:
             returnstmt = str(num)+" videos moved into better-named folders."
+
+        if(self.export) : self.exporter.writeout()
+
         print(returnstmt)     
     
     def printStatus(self, txt):
@@ -245,43 +276,51 @@ class Organizer:
         outlist = []
         copy = self.optionsdict['copy'] 
         
-        dirpath = self.optionsdict['destination']
+        dirpath = str(self.optionsdict['destination'])
         
         listonly = self.optionsdict['l']
 
         #TODO add non-video files or unknown files to destination (like bring notes, posters, etc along to destination
+        #TODO this means we have to ignore non-video files for a search
 
         for item in list:
+            if(not self.debugmode()):
+                print(".",end='',flush=True)
             self.logger.debug('>'*50)
             self.logger.debug(item.path)
             if(not item.name.startswith('.')): #ignore hidden files
                 if(item.is_file()):
                     #TODO add tmdb_id file
                     endpath = self.fixnameinfo(item)
-                    finalpath = dirpath+endpath
+                    finalpath = Path(dirpath+'/'+endpath)
 
                     if(not listonly):
-                        if(not path.exists(finalpath)):
-                            self.printStatus('Creating directory '+finalpath)
+                        if(not finalpath.exists()):
+                            self.printStatus('Creating directory '+str(finalpath))
                             makedirs(finalpath)
                     else:
                         outlist.append(finalpath)
                     
                     if(not listonly):
                         if(copy):
-                            self.printStatus('Copying to '+finalpath)
+                            self.exporter.addCopy(Path(item.path), finalpath)
+                            self.printStatus('Copying to '+str(finalpath))
                             copy2(item.path, finalpath)
                         else:
-                            self.printStatus('Moving to '+finalpath)
+                            self.exporter.addMove(Path(item.path), finalpath)
+                            self.printStatus('Moving to '+str(finalpath))
                             move(item.path, finalpath)
                     else:
-                        self.printStatus(item.name+' > '+finalpath)
+                        if(copy):
+                            self.exporter.addCopy(Path(item.path), finalpath)
+                        else:
+                            self.exporter.addMove(Path(item.path), finalpath)
+                        self.printStatus(item.name+' > '+str(finalpath))
                     num+=1
                     self.logaction(item.name,finalpath)
                 else:
                     #directory - recursive search
                     num += self.organizefolder(item.path,num)
-
         return num
                 
             
@@ -294,7 +333,10 @@ class Organizer:
 
     def getHigherDirNames(self, it):
         #TODO stop when at specified folder
-        dirnames = it.path.split('/')
+        pathstr = str(it.path)
+        pathcutoff = pathstr.split(str(self.optionsdict['directory']))[-1]
+
+        dirnames = pathcutoff.split('/')
         revnames = []
         
         if(it.is_file()):
@@ -346,11 +388,11 @@ class Organizer:
         
         newName = newName.strip()
     
-        if(newName[0:4].lower() == 'the '):
-            newName = newName[4:]
-            newName += ', The '
-#         newName = newName.title()
-    
+#         if(newName[0:4].lower() == 'the '):
+#             newName = newName[4:]
+#             newName += ', The '
+# #         newName = newName.title()
+#
 
         if('year' in i_info):
             year = str(i_info['year'])
@@ -401,14 +443,14 @@ class Organizer:
             raise RuntimeError("type must be episode or movie")
 
     def buildpath(self, resultitem, originalinfo):
-        #only pulls type, year, and season (if tv show) from originalinfo
         newName = ''
         newPath = ''
 
         if (self.checkifmovie(originalinfo['type'])):
             # movie
             newName = resultitem.title
-            newName += ' (' + str(resultitem.year) + ')'
+            if(resultitem.year != 0):
+                newName += ' (' + str(resultitem.year) + ')'
             # newName += '.' + spname.split('.')[-1]
             newPath = 'Movies/' + newName + '/' + newName
         else:
@@ -416,14 +458,48 @@ class Organizer:
             newPath = 'TV Shows/' + resultitem.title + '/Season ' + str(originalinfo['season']) + '/' + resultitem.title
             newPath += " S{:02}E{:02}".format(originalinfo['season'],originalinfo['episode'])
 
+            #get episode name info
+            epdict = {'tv_id':resultitem.id,'episode_number':int(originalinfo['episode']),
+                      'season_number':int(originalinfo['season'])}
+            ep = episode.Episode(epdict, self.tmdb)
+            ep.fetchinfo()
+            newPath += ' '+ep.name
+
+        size = None
+        edition = None
+        other = None
+
+        if('edition' in originalinfo):
+            edition = originalinfo['edition']
+        if ('screen_size' in originalinfo):
+            size = originalinfo['screen_size']
+        if ('other' in originalinfo):
+            other = originalinfo['other']
+
+        addedSlash = False
+
+        for extra in [size,edition,other]:
+            if(extra is not None):
+                if(not addedSlash):
+                    newPath += ' -'
+                    addedSlash = True
+                if(isinstance(extra,list)):
+                    for e in extra:
+                        newPath += ' '+str(e)
+                else:
+                    newPath += ' ' + str(extra)
+
         return newPath
 
     def contextSearch(self, topresult, guessedTitle, direntryitem):
-        goodscore = 0.80
-        # medscore = 0.25
+        #todo search title as TV show to check for better result
+        goodscore = 0.80 #constitutes a match good enough to ignore other contextual searches
+        scorecutoff = 0.25 #the cutoff to when we give up and don't rename the file
 
         # topresult = results[0]
-        matchvalue = topresult.titleMatchPercentage(guessedTitle)
+        matchvalue = 0
+        if(topresult is not None):
+            matchvalue = topresult.titleMatchPercentage(guessedTitle)
 
         info = guessit(direntryitem.name)
 
@@ -439,31 +515,69 @@ class Organizer:
 
             #search the directory path for a better name?
             folders = self.getHigherDirNames(direntryitem)
-            n0dir = folders.pop()
-            n1dir = folders.pop()
+            n0dir = None
+            n1dir = None
+            if (len(folders)>0):
+                n0dir = folders.pop()
+            if (len(folders) > 0):
+                n1dir = folders.pop()
+
             self.logger.debug("Trying search for "+str(n0dir)+' & '+str(n1dir))
 
             #TODO: properly search for '/TVshow/season 1/episode1.avi' by just concatenating
 
             #does a search result match a directory name better than the filename?
-            n0results = self.searchitem(info, str(n0dir))
-            n1results = self.searchitem(info, str(n1dir))
+            n0results = None
+            n1results = None
+            if(n0dir is not None):
+                n0results = self.searchitem(info, str(n0dir))
+            if (n1dir is not None):
+                n1results = self.searchitem(info, str(n1dir))
 
             dirsearchresults = [(n0results,str(n0dir)),
                                 (n1results,str(n1dir))]
 
             for rtuple in dirsearchresults:
-                results = rtuple[0]
-                dirsearchname = rtuple[1]
-                if(len(results)>0):
-                    value = results[0].titleMatchPercentage(dirsearchname)
-                    self.logger.debug(str(results[0])+' | '+str(dirsearchname))
-                    scores.append(value)
-                    data.append((results[0],info))
+                if(rtuple[0] is not None):
+                    results = rtuple[0]
+                    dirsearchname = rtuple[1]
+                    if(len(results)>0):
+                        value = results[0].titleMatchPercentage(dirsearchname)
+                        self.logger.debug(str(results[0])+' | '+str(dirsearchname))
+                        scores.append(value)
+                        data.append((results[0],info))
+
+            #what if all we are missing is the subtitle?
+            #that means we should expect a good match in the beginning
+            if (topresult is not None):
+                #we need a result to search against
+                giventitle = info['title'].lower()
+                titleloc = topresult.title.lower().find(giventitle)
+                colonloc = topresult.title.lower().find(':')
+                self.logger.debug("Context search for subtitle in: '"+giventitle+"' in '"+topresult.title.lower()+"'")
+                self.logger.debug(str(titleloc)+', '+str(colonloc))
+                if(titleloc>=0):
+                    if(colonloc > 0):
+                        if(titleloc+len(giventitle) <= colonloc):
+                            #our title falls before the subtitle
+                            #ignore the subtitle and check the match
+                            resulttitlewithoutcolon = topresult.title[0:colonloc].lower()
+                            nosubtitlescore = topresult.arbitraryMatchPercentage(resulttitlewithoutcolon,giventitle)
+                            #now we add in the RESULT's title (because it has the subtitle)
+                            scores.append(nosubtitlescore)
+                            data.append((topresult,info))
+                        else:
+                            #title falls after the colon... lets not use this method for context
+                            pass
+                    else:
+                        #no colon, so maybe we are just missing some major words?
+                        #there is too much unknown here so lets ignore it
+                        pass
+                else:
+                    #info['title'] not located in top result - bad news
+                    pass
 
             #What about the country info?
-
-            countrymatchvalue = 0
             if ('country' in info):
                 country_code = info['country'].alpha2
                 countryname = pycountry.countries.get(alpha_2=country_code).name
@@ -473,9 +587,16 @@ class Organizer:
                 data.append((topresult,info))
 
             bestscore = max(scores)
-            i = scores.index(bestscore)
-            dtuple = data[i]
-            return self.buildpath(dtuple[0],dtuple[1])
+
+            if(bestscore<scorecutoff):
+                info.update({'title':self.createTitle(info),
+                             'id':0}) #required metadata
+                fakemovie = movie.Movie(info, None)
+                return self.buildpath(fakemovie,info)
+            else:
+                i = scores.index(bestscore)
+                dtuple = data[i]
+                return self.buildpath(dtuple[0],dtuple[1])
 
 
     #create new filename from limited filesystem info
@@ -499,6 +620,8 @@ class Organizer:
             newPath = spath
         else:
             self.logger.info("No result for '"+guessitTitle+"' in search results")
+            spath = self.contextSearch(None, guessitTitle, en)
+            newPath = spath
             newName = self.createTitle(i_info)
 
         if(newPath == ''):

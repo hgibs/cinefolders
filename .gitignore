@@ -1,9 +1,13 @@
 #don't share api key
 _apikey.py
 apikey.ini
+apikey.ini.save
 
 #pycharm
 .idea
+
+#Mac artifacts
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
