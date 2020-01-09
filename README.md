@@ -86,3 +86,43 @@ optional arguments:
   --debug               debug option (only for developers)
 ```
 
+
+# When a match cannot be made...
+This module can figure out a lot and _usually_ finds the correct movie or tv show based on the directory structure, but sometimes it may need a bit of help. If the code isn't pretty certain it found the right item online, it will leave it behind (if you are moving directories) or copy it to an "Unknown" directory (if you are copying). There are a few ways for you to do help the code find the correct item. 
+
+## Option 1: imdb.txt
+The easiest way is to simply perform your own search for the item on www.imdb.org and copying the link (or just the 'tt' number) to a file called imdb.txt, putting that file in the same directory as the movie. Note: This would require each movie or tv show to have its own folder.
+
+For example:
+```
+that_boxing_movie/
+ movie.mp4
+```
+... would not search well. But if you add a text file with the correct imdb link:
+```
+#imdb.txt
+https://www.imdb.com/title/tt0248667/?ref_=ttls_li_tt
+```
+And you place it in the movie's directory:
+```
+that_boxing_movie/
+ movie.mp4
+ imdb.txt
+```
+
+## Option 2: Manually fix it
+You can also try changing the name up a bit, adding a year, etc. so that the code has an easier time finding it.
+
+For example:
+```
+that_boxing_movie/
+ movie.mp4
+```
+... is pretty vague. If instead you made it:
+
+For example:
+```
+Ali/
+ movie.mp4
+```
+... it would find it and do the work.
