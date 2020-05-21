@@ -1,5 +1,5 @@
 import pytest
-from os import environ, remove, makedirs, strerror, getcwd
+from os import environ, remove, makedirs, strerror, getcwd, listdir
 import random
 import string
 from pathlib import Path
@@ -195,4 +195,8 @@ def test_organizefolder(tmpdir):
 
     for s in CORRECTST:
         p = Path(str(tmpdir.dirpath()) + '/videos_out/' + s)
+        if not p.exists():
+            print("Could not find:",p)
+            print("Existing Structure:",listdir(str(tmpdir.dirpath()) + '/videos_out/'))
+            
         assert p.exists()
