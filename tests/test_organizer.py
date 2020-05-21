@@ -197,6 +197,10 @@ def test_organizefolder(tmpdir):
         p = Path(str(tmpdir.dirpath()) + '/videos_out/' + s)
         if not p.exists():
             print("Could not find:",p)
-            print("Existing Structure:",listdir(str(tmpdir.dirpath()) + '/videos_out/'))
+            print("Existing Structure:")
+            print("Movies")
+            print(listdir(str(tmpdir.dirpath()) + '/videos_out/Movies'))
+            print("\nTV Shows")
+            print(listdir(str(tmpdir.dirpath()) + '/videos_out/TV Shows'))
             
         assert p.exists()
