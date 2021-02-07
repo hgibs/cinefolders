@@ -89,7 +89,9 @@ class TMDb:
     def getmovie(self, id):
         idnum = int(id)
         return movie.Movie({'id':idnum},self)
-        
+
+
+    #TODO: tmdb has removed rate limiting as of dec 16, 2019
     def safeapi(self, url, callnum=0):
         thisrequest = requests.get(url)
         if(not thisrequest.ok):
@@ -101,3 +103,48 @@ class TMDb:
             return None
         
         return thisrequest
+            
+    # def checktime(self, request):
+    #     #returns the time the next request should wait to before starting
+    #     #make sure we aren't exceeding our rate limit of 40 requests / 10 seconds
+    #     now = floor(time())
+    #     # resettime = self.getresettime(request)
+    #     # secondsrem = (resettime-now)
+    #     # #average 4/second
+    #     # reqsrem = self.getremainingreqs(request)
+    #     # if(secondsrem > 0):
+    #     #     reqratio = reqsrem/secondsrem
+    #     #     if(reqsrem <= 1):
+    #     #         #be safe and wait it out
+    #     #         return float(request.headers['X-RateLimit-Reset'])
+    #     #     if(reqratio < 4.0):
+    #     #         #wait until average is back up to 4.0/sec
+    #     #         sleepdelta = secondsrem-(reqsrem-1)/reqratio
+    #     #         return now+sleepdelta
+    #     #     else:
+    #     #         #ratio is good
+    #     #         return now
+    #     # else:
+    #     #     #0 seconds remaining
+    #     #     return now
+            
+    # def getresettime(self, request):
+    #     if('X-RateLimit-Reset' in request.headers):
+    #         return float(request.headers['X-RateLimit-Reset'])
+    #     else:
+    #         tdata = json.loads(request.text)
+    #         if('Retry-After' in tdata):
+    #             return time()+float(tdata['Retry-After'])
+    #         else:
+    #             return time()+10.0
+        
+    # def getremainingreqs(self, request):
+    #     if('X-RateLimit-Remaining' in request.headers):
+    #         return float(request.headers['X-RateLimit-Remaining'])
+    #     else:
+    #         return 0
+        
+    def sleepuntil(self, endtime):
+        delta = endtime-time()
+        if(delta > 0):
+            sleep(delta)
