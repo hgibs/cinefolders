@@ -22,7 +22,7 @@ If you want to get more info like the trailers, posters, reviews, etc.. Just see
 sister project to this one: [cinefiles](https://github.com/hgibs/cinefiles).
 
 ```
-cinefolders.py Videos/
+cinefolders Videos/
 ```
 
 Changes this unorganized mess:

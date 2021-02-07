@@ -47,7 +47,7 @@ class Organizer:
                 raise FileNotFoundError("No API key file found, try running cinefolders from the command line "+
                                         "("+keypath+")")
 
-            apisearch = search("[0-9a-f]{32}",keyfile)
+            apisearch = search("[0-9a-f]{32}", keyfile)
         else:
             apisearch = search("[0-9a-f]{32}", args['apikey'])
 
@@ -167,7 +167,6 @@ class Organizer:
         self.configdict.update({'copy':(bool)(value)})
             
     def setPath(self, pathobj, key):
-
         if(pathobj.exists()):
             if(pathobj.is_dir()):
                 #convert to absolute path to avoid possible issues
@@ -214,32 +213,7 @@ class Organizer:
             raise NotADirectoryError(srcfolder+" does not exist (source folder)")
         if not path.exists(dstfolder):
             self.checkDestExists(dstfolder)
-        
-        num = 0
-        
-        
-#         if(not copy):
-#             confirmtxt = ""
-#             message =   "This product is still in beta, don't " \
-#                         "trust this program to not irrecoverably corrupt " \
-#                         "your files while moving/renaming. Copying is safer. "
-#             
-#             if(not self.configdict['accept-risk']):
-#                 if(self.interactive):
-#                     while(not (confirmtxt=="yes" or confirmtxt=="no")):
-#                         confirmtxt = input(message+"Are you sure you want to proceed " \
-#                                         "with moving movies into folders? (yes or no) ")
-#                         confirmtxt = confirmtxt.lower()
-#                         if(not (confirmtxt=="yes" or confirmtxt=="no")):
-#                             print("Please enter 'yes' or 'no'")
-#                 else:
-#                     raise ValueError(message + " To acknowledge this in non-interactive " \
-#                                     "mode, please run with 'accept-risk=True' " \
-#                                     "config file/command line argument set.")
-#             else:
-#                 if(self.interactive):
-#                     print("Beta risk accepted! Moving files instead of copying")
-                
+
         num = self.organizefolder(srcfolder)
         print()
                 
@@ -316,11 +290,14 @@ class Organizer:
                         else:
                             self.exporter.addMove(Path(item.path), finalpath)
                         self.printStatus(item.name+' > '+str(finalpath))
-                    num+=1
+                    num += 1
                     self.logaction(item.name,finalpath)
                 else:
                     #directory - recursive search
-                    num += self.organizefolder(item.path,num)
+                    if(item.path != dirpath):
+                        num += self.organizefolder(item.path)
+                    else:
+                        print("Skipping the processing of "+str(dirpath)+" because that is the destination.")
         return num
                 
             
@@ -602,6 +579,7 @@ class Organizer:
     #create new filename from limited filesystem info
     def fixnameinfo(self, en):
         i_info = guessit(en.name)
+        pathstr = en.path
         # self.debug(en.name, i_info)
 #         newName = i_info['title'].lower()
         guessitTitle = i_info['title']

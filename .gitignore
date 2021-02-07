@@ -2,6 +2,7 @@
 _apikey.py
 apikey.ini
 apikey.ini.save
+env.key
 
 #pycharm
 .idea

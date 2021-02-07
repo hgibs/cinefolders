@@ -48,15 +48,18 @@ STRUCTURE = [   'Down_periscope_directors_cut_4k.avi',
                 # 'dsfasdfd/dfasdlkjfosokij.mp4', #this is really hard to handle well it works on some environments only
                 'Mulan/dswojf32908.mp4',
                 'Good Ones/Horror/The.Shining.1980.US.DC.1080p.BluRay.H264.AAC-RARBG.mp4',
-                'Avatar - 2x02 -.mkv'
+                'Avatar - 2x02 -.mkv',
+                'Mulan (1998)/video.avi'
                 ]
 
 CORRECTST = ["Movies/Down Periscope (1996)/Down Periscope (1996) - 2160p Director's Cut.avi",
              "Movies/The Grand Budapest Hotel (2014)/The Grand Budapest Hotel (2014).mkv",
              # "Movies/Dfasdlkjfosokij/Dfasdlkjfosokij.mp4",
-             "Movies/Mulan (1998)/Mulan (1998).mp4",
+             "Movies/Mulan (2020)/Mulan (2020).mp4",
              "Movies/The Shining (1980)/The Shining (1980) - 1080p Director's Cut.mp4",
-             "TV Shows/Avatar: The Last Airbender/Season 2/Avatar: The Last Airbender S02E02 The Cave of Two Lovers.mkv"]
+             "TV Shows/Avatar: The Last Airbender/Season 2/Avatar: The Last Airbender S02E02 Chapter Two: The Cave of Two Lovers.mkv",
+             "Movies/Mulan (1998)/Mulan (1998).avi"
+             ]
 
 
 def fixdirectory(options,tmpdir):
@@ -171,3 +174,5 @@ def test_organizefolder(tmpdir):
     for s in CORRECTST:
         p = Path(str(tmpdir.dirpath()) + '/videos_out/' + s)
         assert p.exists()
+
+#todo add test for destination within source path
