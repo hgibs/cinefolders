@@ -37,6 +37,7 @@ class ExportBash:
             self.lines.append('mkdir -p "'+self.escape_chars(str(pathobj.absolute()))+'"')
 
     def addCopy(self,src,dst):
+        # TODO switch to hard link instead of copy
         self.checkmkdir(dst.parent)
         self.lines.append('cp "' + self.escape_chars(str(src)) + '" "' + self.escape_chars(str(dst))+'"')
 

@@ -1,5 +1,5 @@
 import pytest
-from os import environ, remove, makedirs, strerror, getcwd, listdir
+from os import environ, remove, makedirs, strerror, getcwd, listdir, scandir
 import random
 import string
 from pathlib import Path
@@ -38,9 +38,9 @@ MYEARS = [1996,
           ]
 
 #note - these don't include the container / extension
-FMNAMES =['Movies/Down Periscope (1996)/Down Periscope (1996) - Ultra HD',
-          'Movies/Down Periscope (1996)/Down Periscope (1996)',
-          "Movies/Down Periscope (1996)/Down Periscope (1996) - 2160p Director's Cut",
+FMNAMES =['Down Periscope (1996) - Ultra HD',
+          'Down Periscope (1996)',
+          "Down Periscope (1996) - 2160p Director's Cut",
           ]
 
 STRUCTURE = [   'Down_periscope_directors_cut_4k.avi',
@@ -66,17 +66,17 @@ STRUCTURE = [   'Down_periscope_directors_cut_4k.avi',
 CORRECTST = ["Movies/Down Periscope (1996)/Down Periscope (1996) - 2160p Director's Cut.avi",
              "Movies/The Grand Budapest Hotel (2014)/The Grand Budapest Hotel (2014).mkv",
              # "Movies/Dfasdlkjfosokij/Dfasdlkjfosokij.mp4",
-             "Movies/Mulan (2020)/Mulan (2020).mp4",
+             "Movies/Mulan (2020)/Dswojf32908.mp4",
              "Movies/The Shining (1980)/The Shining (1980) - 1080p Director's Cut.mp4",
-             "TV Shows/Avatar: The Last Airbender/Season 2/Avatar: The Last Airbender S02E02 The Cave of Two Lovers.mkv",
+             "TV Shows/Avatar: The Last Airbender/Season 2/Avatar: The Last Airbender S02E02 Chapter Two: The Cave of Two Lovers.mkv",
              "Movies/This Is the End (2013)/This Is the End (2013).mp4",
-             "Movies/The Hobbit: An Unexpected Journey (2012)/The Hobbit: An Unexpected Journey (2012) - 720p Reencoded Rip.mp4"
+             "Movies/The Hobbit: An Unexpected Journey (2012)/The Hobbit: An Unexpected Journey (2012) - 720p Reencoded Rip.mp4",
              "Movies/Underworld: Evolution (2006)/Underworld: Evolution (2006).avi",
              "Movies/Warm Bodies (2013)/Warm Bodies (2013) - Rip.avi",
              "TV Shows/History Channel Declassified/Season 1/History Channel Declassified S01E02 Declassified: The Taliban",
              "Movies/Sleepless in America (2014)/Sleepless in America (2014).mkv",
              "TV Shows/Life/Season 1/Life S01E09 Plants.mkv",
-             "Movies/The Hobbit: An Unexpected Journey (2012)/The Hobbit: An Unexpected Journey (2012) - 720p Reencoded Rip COPY 1.mp4",
+             "Movies/The Hobbit: An Unexpected Journey (2012)/The Hobbit: An Unexpected Journey (2012) - 720p Reencoded Rip.mp4",
              "Movies/Robot Chicken: Star Wars Episode III (2010)/Robot Chicken: Star Wars Episode III (2010).avi",
              "Movies/Terminator 2: Judgment Day (1991)/Terminator 2: Judgment Day (1991).avi",
              "Movies/Underworld (2003)/Underworld (2003).avi",
@@ -90,7 +90,6 @@ def fixdirectory(options,tmpdir):
 
 def createdirstructure(newdir):
     for s in STRUCTURE:
-
         completepath = str(newdir) + '/videos/' + s
         dirs = completepath.split('/')
         justpath = '/'.join(dirs[:-1])
@@ -174,8 +173,8 @@ def test_namingmovies(tmpdir):
         gdict = guessit(MOVIES[i])
         testtitle = gdict['title']
         fakemovie = movie.Movie({'id':0,'title':testtitle,'release_date':str(MYEARS[i])},None)
-        newPath = testobj.buildpath(fakemovie, gdict)
-        assert newPath == FMNAMES[i]
+        newPath, newName = testobj.buildpath(fakemovie, gdict)
+        assert newName == FMNAMES[i]
 
 def test_createdirstructure(tmpdir):
     createdirstructure(tmpdir.dirpath())
@@ -183,12 +182,20 @@ def test_createdirstructure(tmpdir):
         p = Path(str(tmpdir.dirpath())+'/videos/'+s)
         assert p.exists()
 
+def print_structure(path, indent=2):
+    list = scandir(path)
+    for item in list:
+        if (item.is_file()):
+            print(' ' * indent+item.name)
+        else:
+            print(' ' * indent+item.name+'/')
+            print_structure(item.path, indent+2)
+
 def test_organizefolder(tmpdir):
     options = dict(STDOPTIONSWKEY)
     fixdirectory(options, tmpdir)
     options.update({'destination':str(tmpdir.dirpath())+'/videos_out/'})
     testobj = organizer.Organizer(options)
-
     createdirstructure(tmpdir)
 
     testobj.organizefolder(str(tmpdir))
@@ -196,11 +203,11 @@ def test_organizefolder(tmpdir):
     for s in CORRECTST:
         p = Path(str(tmpdir.dirpath()) + '/videos_out/' + s)
         if not p.exists():
-            print("Could not find:",p)
-            print("Existing Structure:")
+            print("Could not find:", p)
             print("Movies")
-            print(listdir(str(tmpdir.dirpath()) + '/videos_out/Movies'))
-            print("\nTV Shows")
-            print(listdir(str(tmpdir.dirpath()) + '/videos_out/TV Shows'))
+            print_structure(str(tmpdir.dirpath()) + '/videos_out/Movies')
+            print("TV Shows")
+            print_structure(str(tmpdir.dirpath()) + '/videos_out/TV Shows')
+
             
         assert p.exists()
