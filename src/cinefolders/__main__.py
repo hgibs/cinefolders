@@ -53,7 +53,7 @@ def checkapikey():
     if(not keyfile.is_file()):
         print(ascii_art)
 
-        print("Welcome to the cinefolders utility! It searched TMDb to help determine the title and other info "+
+        print("Welcome to the cinefolders utility! It searches TMDb to help determine the title and other info "+
               "for the videos you parse. This requires an API key that you must register for yourself. Please visit "+
               "pypi.org/project/cinefolders to get more info.\n")
         #create API file
