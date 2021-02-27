@@ -1,12 +1,13 @@
 #! /usr/bin/env python3
 
 from .tmdb import TMDb, movie, episode
-import organizer
+# from .organizer import Organizer
 
 from pathlib import PurePath
 from guessit import guessit
 
 import logging
+
 
 class Searcher:
     MOVIE_TYPE = 0
@@ -91,7 +92,6 @@ class Searcher:
     #     :param tmdb_obj: Tmdb - object to score against
     #     :return: float (range: 0.0-inf)
     #     """
-
 
     def guessInfo(self):
         """

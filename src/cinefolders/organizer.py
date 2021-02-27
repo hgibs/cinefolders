@@ -19,7 +19,7 @@ import pycountry
 
 # from .cinefiles import Cinefiles
 
-from searcher import Searcher
+from .searcher import Searcher
 
 from .tmdb import TMDb, movie, episode
 from .export import ExportBash
@@ -377,14 +377,14 @@ class Organizer:
         #blank dst means something was deleted
         self.log.append((src,dst))
         
-    # def running_on_windows(self):
-    #     if(osname=='nt'):
-    #         #codecov skip start
-    #         ctypes.windll.kernel32.SetFileAttributesW.argtypes = (
-    #                                     ctypes.c_wchar_p, ctypes.c_uint32)
-    #         return True
-    #         #codecov skip end
-    #     return False
+    def running_on_windows(self):
+        if(osname=='nt'):
+            #codecov skip start
+            ctypes.windll.kernel32.SetFileAttributesW.argtypes = (
+                                        ctypes.c_wchar_p, ctypes.c_uint32)
+            return True
+            #codecov skip end
+        return False
     
     def debugmode(self):
         return self.optionsdict['debug']
