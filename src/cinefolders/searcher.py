@@ -12,6 +12,7 @@ import logging
 class Searcher:
     MOVIE_TYPE = 0
     TV_TYPE = 1
+    OTHER = 3
 
 
     """
@@ -98,17 +99,29 @@ class Searcher:
         Utilizes all the path information to perform searches and identify the optimal/true name
         :return: None
         """
+        # upnames = [self.item.name]
+        upnames = self.getHigherDirNames(self.item)
+
         guessit_info = guessit(self.item.name)
 
-        self.itemtype = self.MOVIE_TYPE
-        self.itemtype = self.TV_TYPE
+        if guessit_info['mimetype'].find('video') == 0:
+            if guessit_info['type'] == 'movie':
+                self.itemtype = self.MOVIE_TYPE
+            elif guessit_info['type'] == 'episode':
+                self.itemtype = self.TV_TYPE
+            else:
+                self.itemtype = self.OTHER
+        else:
+            self.itemtype = self.OTHER
+
+
 
         raise NotImplementedError()
 
     def getHigherDirNames(self, it):
         # TODO stop when at specified folder?
         pathstr = str(it.path)
-        pathcutoff = pathstr.split(str(self.optionsdict['directory']))[-1]
+        pathcutoff = pathstr.split(str(self.org_obj.optionsdict['directory']))[-1]
 
         dirnames = pathcutoff.split('/')
         revnames = []
