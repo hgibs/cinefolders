@@ -4,7 +4,7 @@
 from shutil import copy2, move
 from os import path, scandir, makedirs, strerror, getcwd
 from os import name as osname
-from pathlib import Path
+from pathlib import Path, PurePath
 import errno
 # # import os
 # from sys import maxsize
@@ -20,7 +20,8 @@ import pycountry
 # from .cinefiles import Cinefiles
 
 from .searcher import Searcher
-
+from .filepathtree import FilePathTree
+from .videoid import VideoID
 from .tmdb import TMDb, movie, episode
 from .export import ExportBash
 
@@ -32,6 +33,11 @@ from .export import ExportBash
 description = "A utility for organizing a media folder"
 
 class Organizer:
+    RESERVED_FILENAMES = {
+        'tmdb.txt': id.TMDB,
+        'imdb.txt': id.IMDB,
+        'tvdb.txt': id.TVDB,
+    }
 
     def __init__(self, args):
         if(len(args)==0):
@@ -118,19 +124,15 @@ class Organizer:
                     "version 1.0 is released. You could help this " \
                     "version get released faster by contributing to " \
                     "this project at github.com/hgibs/cinefolders")
-            sys.exit(1) 
-#         maxsize = pow(2,31)
+            sys.exit(1)
 
-        # set up export
+        # set up export if enabled
         self.export = (self.optionsdict['x'] is not None)
         if (self.export):
             #implies listonly
             self.optionsdict['l'] = True
             self.exporter = ExportBash(Path(self.optionsdict['x']))
             self.logger.info("Exporting bash script to: "+str(self.exporter.exportLocation))
-        else:
-            #this class is useful for other things too
-            self.exporter = ExportBash(self.optionsdict['directory'].joinpath("export.sh"))
                 
         #######################
         # Set class variables #
@@ -247,9 +249,20 @@ class Organizer:
         for a in self.actions:
             print(a)
 
+    def readDir(self, src):
+        rootpath = PurePath(src)
+        pathtree = FilePathTree(rootpath)
+
+        with scandir(rootpath) as dirIterator:
+            for item in dirIterator:
+                if not item.name.startswith('.'):
+                    if item.name.lower() in self.RESERVED_FILENAMES.keys():
+                        foundID = VideoID()
+                        pathtree.addId(foundID)
+
     def organizefolder(self,src,num=0):
         # limit = self.configdict['limit']
-        list = scandir(src) 
+
         outlist = []
         copy = self.optionsdict['copy'] 
         
@@ -260,12 +273,20 @@ class Organizer:
         #TODO add non-video files or unknown files to destination (like bring notes, posters, etc along to destination
         #TODO this means we have to ignore non-video files for a search
 
+
+
+        # copy existing file structure to avoid recursive loops and to identify id files
+        readDir
+
+
+
         for item in list:
             if(not self.debugmode()):
                 print(".",end='',flush=True)
             self.logger.debug('>'*50)
             self.logger.debug(item.path)
-            if(not item.name.startswith('.')): #ignore hidden files
+
+            if not item.name.startswith('.') and item.name.lower() not in self.RESERVED_FILENAMES:
                 if(item.is_file()):
                     #TODO add tmdb_id file
                     self.searcher.setItem(item)

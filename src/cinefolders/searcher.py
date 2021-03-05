@@ -21,7 +21,12 @@ class Searcher:
     After instantiation, setItem, then use the get* methods to get the found information.
     """
 
-    def __init__(self, org_obj):
+    def __init__(self, org_obj, id_reference=None):
+        """
+        Initialize the object
+        :param org_obj: Calling Organizer object
+        :param id_references: (optional) 
+        """
         # self.apikey = org_obj.apikey
 
         # create logger
@@ -36,10 +41,12 @@ class Searcher:
             #Assume implied verbose
             org_obj.optionsdict.update({'v':True})
 
+        self.org_options = org_obj.optionsdict
         self.tmdb = org_obj.tmdb
 
         self.item = None
         self.itemtype = None
+
 
     def unsetItem(self):
         self.item = None
@@ -94,25 +101,33 @@ class Searcher:
     #     :return: float (range: 0.0-inf)
     #     """
 
+    # General strategy is to:
+    # 1. See if a TMDB file exists - use that if exists
+    # 2. make a bunch of searches and see if any of them are good enough on their own, or if TMDB file exists
+    # in hierarchy
+    # 3. use a combined search of the paths and nearby files
+
     def guessInfo(self):
         """
         Utilizes all the path information to perform searches and identify the optimal/true name
         :return: None
         """
-        # upnames = [self.item.name]
+
         upnames = self.getHigherDirNames(self.item)
+        upnames.append(self.item.name)
 
-        guessit_info = guessit(self.item.name)
+        for name in upnames:
+            guessit_info = guessit(self.item.name)
 
-        if guessit_info['mimetype'].find('video') == 0:
-            if guessit_info['type'] == 'movie':
-                self.itemtype = self.MOVIE_TYPE
-            elif guessit_info['type'] == 'episode':
-                self.itemtype = self.TV_TYPE
+            if guessit_info['mimetype'].find('video') == 0:
+                if guessit_info['type'] == 'movie':
+                    self.itemtype = self.MOVIE_TYPE
+                elif guessit_info['type'] == 'episode':
+                    self.itemtype = self.TV_TYPE
+                else:
+                    self.itemtype = self.OTHER
             else:
                 self.itemtype = self.OTHER
-        else:
-            self.itemtype = self.OTHER
 
 
 
@@ -121,7 +136,7 @@ class Searcher:
     def getHigherDirNames(self, it):
         # TODO stop when at specified folder?
         pathstr = str(it.path)
-        pathcutoff = pathstr.split(str(self.org_obj.optionsdict['directory']))[-1]
+        pathcutoff = pathstr.split(str(self.org_options['directory']))[-1]
 
         dirnames = pathcutoff.split('/')
         revnames = []

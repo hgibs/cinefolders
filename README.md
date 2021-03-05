@@ -88,10 +88,42 @@ optional arguments:
 
 
 # When a match cannot be made...
-This module can figure out a lot and _usually_ finds the correct movie or tv show based on the directory structure, but sometimes it may need a bit of help. If the code isn't pretty certain it found the right item online, it will leave it behind (if you are moving directories) or copy it to an "Unknown" directory (if you are copying). There are a few ways for you to do help the code find the correct item. 
+This module can figure out a lot and _usually_ finds the correct movie or tv show based on the directory structure, but 
+sometimes it may need a bit of help. If the code isn't pretty certain it found the right item online, it will leave it 
+behind (if you are moving directories) or copy it to an "Unknown" directory (if you are copying). There are a few ways 
+for you to do help the code find the correct item. 
 
-## Option 1: imdb.txt
-The easiest way is to simply perform your own search for the item on www.imdb.org and copying the link (or just the 'tt#######' code) to a file called imdb.txt, putting that file in the same directory as the movie. Note: This would require each movie or tv show to have its own folder.
+## Option 1: tmdb.txt (takes precedence over other options)
+The easiest way is to simply perform your own search for the item on www.themoviedb.org and copying the link to a file 
+called tmdb.txt, putting that file in the same directory as the movie. Note: This would require each movie or tv show 
+to have its own folder.
+
+```
+#tmdb.txt
+tmdb/movie/123456
+```
+or 
+```
+https://www.themoviedb.org/movie/123456-example
+```
+or
+```
+tmdb/tv/123456789
+```
+or
+```
+https://www.themoviedb.org/tv/123456789-example/season/1/episode/1
+```
+
+And you place it in the movie's directory:
+```
+that_boxing_movie/
+ movie.mp4
+ tmdb.txt
+```
+
+## Option 2: imdb.txt
+You can also do this with searching via imdb.com and using imdb.txt:
 
 For example:
 ```
@@ -110,7 +142,19 @@ that_boxing_movie/
  imdb.txt
 ```
 
-## Option 2: Manually fix it
+
+## Option 3:
+In the case of a television show, you can provide a link to the show or season in a higher folder, i.e.:
+
+```
+that_good_tv_show/
+ tmdb.txt
+ 
+```
+
+Note: you can put 
+
+## Option 4: Manually fix it
 You can also try changing the name up a bit, adding a year, etc. so that the code has an easier time finding it.
 
 For example:
