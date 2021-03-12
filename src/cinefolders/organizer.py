@@ -34,9 +34,9 @@ description = "A utility for organizing a media folder"
 
 class Organizer:
     RESERVED_FILENAMES = {
-        'tmdb.txt': id.TMDB,
-        'imdb.txt': id.IMDB,
-        'tvdb.txt': id.TVDB,
+        'tmdb.txt': VideoID.TMDB_TV,
+        'imdb.txt': VideoID.IMDB,
+        # 'tvdb.txt': VideoID.TVDB,
     }
 
     def __init__(self, args):
@@ -267,16 +267,20 @@ class Organizer:
         copy = self.optionsdict['copy'] 
         
         dirpath = str(self.optionsdict['destination'])
+        srcpath = PurePath(self.optionsdict['test'])
         
         listonly = self.optionsdict['l']
 
         #TODO add non-video files or unknown files to destination (like bring notes, posters, etc along to destination
         #TODO this means we have to ignore non-video files for a search
 
-
+        source_root = FilePathTree(srcpath)
 
         # copy existing file structure to avoid recursive loops and to identify id files
-        readDir
+        with scandir(srcpath) as scan_it:
+            for entry in scan_it:
+                if not entry.name.startswith('.') and entry.is_file():
+                    print(entry.name)
 
 
 
