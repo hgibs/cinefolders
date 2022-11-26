@@ -2,7 +2,21 @@
 name = "cinefolders"
 version = "0.1.0"
 edition = "2021"
+license = "Apache 2.0"
+authors = ["Holland Gibson"]
+repository = "https://github.com/hgibs/cinefolders"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = { version = "4.0.26", features = ["cargo", "derive"] }
+colored = "2.0.0"
+ignore = "0.4.18"
+log = { version = "0.4.17", features = ["release_max_level_info", "std"] }
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+tokio = { version = "1", features = ["full"] }
+walkdir = "2.3.2"
+
+[target.'cfg(windows)'.dependencies]
+atty = "^0.2.14"
+windows-sys = { version = "^0.42.0", features = ["Win32_System_Console", "Win32_Foundation"] }

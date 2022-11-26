@@ -1,0 +1,12 @@
+name: cinefolders
+version: "0.9"
+author: Holland G. <https://github.com/hgibs>
+about: >
+    a command-line utility for organizing media folders into a structure formatted 
+    for Plex, Emby, a flash drive, etc.. You can also automate this to automatically 
+    add videos to your media folder, keeping it organized.
+args:
+    - verbose:
+        short: v
+        multiple: true
+        help: Sets the level of verbosity

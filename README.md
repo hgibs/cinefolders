@@ -9,10 +9,10 @@ cinefolders
 [Changelog](https://github.com/hgibs/cinefolders/releases)
 
 # NOTE
-After a long haitus I am going to re-write this library into Rust with a focus on this being a more standalone/CLI tool. Check out the `dev-rust` branch for more updates!
+After a long haitus I am going to re-write this library into Rust with a focus on this being a more standalone/CLI tool. Check out the `rust-dev` branch for more updates!
 
 # Description
-**cinefolders** is a command-line utility for organizing organizing media folders into a structure formatted for Plex,
+**cinefolders** is a command-line utility for organizing media folders into a structure formatted for Plex,
 Emby, a flash drive, etc.. You can also automate this to automatically add videos to your media folder, keeping
 it organized.
 

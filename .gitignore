@@ -1,3 +1,6 @@
+#don't share private files
+**/*.secret
+
 #don't share api key
 _apikey.py
 apikey.ini
