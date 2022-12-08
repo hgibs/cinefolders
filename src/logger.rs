@@ -7,11 +7,11 @@ pub struct SimpleLogger {
 }
 
 impl SimpleLogger {
-    pub fn new_default() -> SimpleLogger {
-        SimpleLogger {
-            default_level: LevelFilter::Warn,
-        }
-    }
+    // pub fn new_default() -> SimpleLogger {
+    //     SimpleLogger {
+    //         default_level: LevelFilter::Warn,
+    //     }
+    // }
 
     pub fn new(max_level: LevelFilter) -> SimpleLogger {
         SimpleLogger {

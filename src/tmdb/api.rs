@@ -1,5 +1,10 @@
 use reqwest::blocking::Client;
-use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, USER_AGENT};
+use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE, USER_AGENT};
+// use reqwest::Request;
+use std::collections::HashMap;
+
+use serde::{Deserialize, Serialize};
+use serde_json::{Result, Value};
 
 use log;
 
@@ -7,7 +12,17 @@ use crate::config::Config;
 
 pub fn construct_headers(auth_token: &String) -> HeaderMap {
     let mut headers = HeaderMap::new();
-    headers.insert(USER_AGENT, HeaderValue::from_static("cinefolders"));
+    headers.insert(
+        USER_AGENT,
+        HeaderValue::from_static(
+            "Mozilla/5.0 (compatible; Cinefiles/0.1; +https://github.com/hgibs/cinefiles)",
+        ),
+    );
+    headers.insert(
+        CONTENT_TYPE,
+        HeaderValue::from_static("application/json;charset=utf-8"),
+    );
+    headers.insert(ACCEPT, HeaderValue::from_static("*/*"));
 
     let auth_string = format!("Bearer {}", auth_token);
     match HeaderValue::from_str(&auth_string) {
@@ -21,10 +36,12 @@ pub fn construct_headers(auth_token: &String) -> HeaderMap {
     headers
 }
 
-pub fn query(sysconfig: &Config) {
+// #[derive(Serialize, Deserialize, Debug)]
+// struct U;
+
+pub fn query(sysconfig: &Config) -> Result<()> {
     let url = "https://api.themoviedb.org/3/movie/76341";
 
-    // let client = reqwest::Client::new();
     let client = Client::new();
 
     dbg!(construct_headers(&sysconfig.auth_token));
@@ -36,11 +53,28 @@ pub fn query(sysconfig: &Config) {
 
     match res {
         Ok(r) => {
-            dbg!(r);
+            if !r.status().is_success() {
+                log::warn!("Error with TMDB API request");
+                log::debug!("{:?}", r);
+            } else {
+                log::trace!("Request success");
+            }
+
+            println!("***************************************");
+            dbg!(r.version());
+            dbg!(r.headers());
+
+            let json_text = r.text().unwrap_or(String::from("{}"));
+
+            let v: Value = serde_json::from_str(&json_text)?;
+            dbg!(v);
+
             ()
         }
         Err(_) => (),
     }
 
-    ()
+    // dbg!(map);
+
+    Ok(())
 }
