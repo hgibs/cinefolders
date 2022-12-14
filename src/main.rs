@@ -38,7 +38,14 @@ fn run() -> ExitCode {
 
     let result = api::query(&sys_config);
 
-    dbg!(result);
+    match result {
+        Ok(v) => {
+            dbg!(v);
+        }
+        Err(e) => {
+            panic!("{}", e);
+        }
+    }
 
     // dbg!(auth_token);
 

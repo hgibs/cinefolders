@@ -1,7 +1,6 @@
 use reqwest::blocking::Client;
 use reqwest::header::{HeaderMap, HeaderValue, ACCEPT, AUTHORIZATION, CONTENT_TYPE, USER_AGENT};
 // use reqwest::Request;
-use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Result, Value};
@@ -9,6 +8,7 @@ use serde_json::{Result, Value};
 use log;
 
 use crate::config::Config;
+use crate::tmdb::objects;
 
 pub fn construct_headers(auth_token: &String) -> HeaderMap {
     let mut headers = HeaderMap::new();
@@ -64,10 +64,11 @@ pub fn query(sysconfig: &Config) -> Result<()> {
             dbg!(r.version());
             dbg!(r.headers());
 
-            let json_text = r.text().unwrap_or(String::from("{}"));
+            let json_text = r.text().unwrap();
 
-            let v: Value = serde_json::from_str(&json_text)?;
-            dbg!(v);
+            let decoding: objects::Movie =
+                serde_json::from_str(&json_text).expect("problem decoding");
+            dbg!(decoding);
 
             ()
         }
