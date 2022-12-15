@@ -4,13 +4,10 @@
 mod config;
 // use crate::config;
 
-mod tmdb;
-use tmdb::api;
-// use tmdb::api;
-
 mod logger;
 // use crate::logger::SimpleLogger;
 
+mod driver;
 // use std::env;
 // use std::path::Path;
 
@@ -36,14 +33,14 @@ fn run() -> ExitCode {
         return ExitCode::Failure;
     }
 
-    let result = api::query(&sys_config);
+    let result = driver::drive(sys_config);
 
     match result {
         Ok(v) => {
             dbg!(v);
         }
         Err(e) => {
-            panic!("{}", e);
+            panic!("{:?}", e);
         }
     }
 

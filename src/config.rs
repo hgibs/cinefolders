@@ -19,9 +19,12 @@ struct Args {
     verbosity: u8,
 }
 
+#[derive(Clone)]
 pub struct Config {
     pub auth_token: String,
 }
+
+pub const TMDB_ENV_KEY: &str = "TMDB_APIKEY";
 
 impl Config {
     pub fn validate(&self) -> bool {
@@ -29,7 +32,8 @@ impl Config {
     }
 
     fn validate_auth(&self) -> bool {
-        let re = Regex::new(r"[a-zA-Z0-9.]{211}").unwrap();
+        // let re_token = Regex::new(r"[a-zA-Z0-9.]{211}").unwrap();
+        let re = Regex::new(r"[a-f0-9]{32}").unwrap();
         // dbg!(&self.auth_token);
         re.is_match(&self.auth_token)
     }
@@ -58,18 +62,25 @@ pub fn load_configs() -> Config {
         }
     }
 
-    let auth_token = match args.token {
-        Some(arg_token) => {
-            log::debug!("Using the supplied token from the command line");
-            arg_token
-        }
-        None => {
-            if env::var("TMDB_APIKEY").is_ok() {
-                env::var("TMDB_APIKEY").unwrap()
-            } else {
-                log::error!("No TMDB API token supplied either via the -t flag or TMDB_APIKEY environment variable! Cannot continue.");
-                String::from("")
+    //TODO fix this to not have to reload the env var!
+    if !env::var(TMDB_ENV_KEY).is_ok() {
+        // try to set the env var from the command line
+        match args.token {
+            Some(arg_token) => {
+                log::debug!("Using the supplied token from the command line");
+                env::set_var(TMDB_ENV_KEY, arg_token);
+                // Sync issue may occur, see: https://doc.rust-lang.org/std/env/fn.set_var.html
+                // We validate the Config later, so we don't care here
             }
+            None => {}
+        };
+    };
+
+    let auth_token = match env::var(TMDB_ENV_KEY) {
+        Ok(auth_key) => auth_key,
+        Err(_) => {
+            log::error!("No TMDB API token supplied either via the -t flag or TMDB_APIKEY environment variable! Cannot continue.");
+            String::from("")
         }
     };
 

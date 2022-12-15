@@ -1,6 +1,6 @@
 pub mod config;
+pub mod driver;
 pub mod logger;
-pub mod tmdb;
 
 #[cfg(test)]
 mod test;
