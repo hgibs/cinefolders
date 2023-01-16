@@ -8,3 +8,12 @@ rust-lldb $DBG_TARGET
 (lldb) b src/FILE.rs:##
 (lldb) r
 ```
+
+Extra clippy options:
+```
+cargo clippy --fix -- \
+	-W clippy::pedantic \
+	-W clippy::nursery \
+	-W clippy::unwrap_used \
+	-W clippy::expect_used
+```

@@ -40,7 +40,7 @@ fn run() -> ExitCode {
             dbg!(v);
         }
         Err(e) => {
-            panic!("{:?}", e);
+            panic!("{e:?}");
         }
     }
 

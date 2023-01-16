@@ -1,4 +1,4 @@
-use colored::*;
+use colored::Colorize;
 use log::{Level, LevelFilter, Log, Metadata, Record, SetLoggerError};
 
 pub struct SimpleLogger {
@@ -13,8 +13,8 @@ impl SimpleLogger {
     //     }
     // }
 
-    pub fn new(max_level: LevelFilter) -> SimpleLogger {
-        SimpleLogger {
+    #[must_use] pub fn new(max_level: LevelFilter) -> Self {
+        Self {
             default_level: max_level,
         }
     }
@@ -62,13 +62,13 @@ impl Log for SimpleLogger {
                 record.module_path().unwrap_or_default()
             };
 
-            let message = format!("{} [{}] {}", level_string, target, record.args());
+            let message = format!("{level_string} [{target}] {}", record.args());
 
             // to switch to STDOUT
             // println!("{}", message);
 
             // to switch to STDERR
-            eprintln!("{}", message);
+            eprintln!("{message}");
         }
     }
 

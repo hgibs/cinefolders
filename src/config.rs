@@ -27,7 +27,7 @@ pub struct Config {
 pub const TMDB_ENV_KEY: &str = "TMDB_APIKEY";
 
 impl Config {
-    pub fn validate(&self) -> bool {
+    #[must_use] pub fn validate(&self) -> bool {
         self.validate_auth()
     }
 
@@ -39,7 +39,7 @@ impl Config {
     }
 }
 
-pub fn load_configs() -> Config {
+#[must_use] pub fn load_configs() -> Config {
     let args = Args::parse();
 
     match args.verbosity {
@@ -63,7 +63,7 @@ pub fn load_configs() -> Config {
     }
 
     //TODO fix this to not have to reload the env var!
-    if !env::var(TMDB_ENV_KEY).is_ok() {
+    if env::var(TMDB_ENV_KEY).is_err() {
         // try to set the env var from the command line
         match args.token {
             Some(arg_token) => {
@@ -80,11 +80,11 @@ pub fn load_configs() -> Config {
         Ok(auth_key) => auth_key,
         Err(_) => {
             log::error!("No TMDB API token supplied either via the -t flag or TMDB_APIKEY environment variable! Cannot continue.");
-            String::from("")
+            String::new()
         }
     };
 
     Config {
-        auth_token: auth_token,
+        auth_token,
     }
 }
